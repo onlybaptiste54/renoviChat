@@ -636,10 +636,23 @@
             messageInput.value = '';
             messageInput.style.height = 'auto';
 
-            const typingDiv = addTypingIndicator();
+            // Placeholder for the assistant's response
+            const responseDiv = document.createElement('div');
+            responseDiv.className = 'message assistant';
+            responseDiv.innerHTML = `
+                <div class="message-avatar">R</div>
+                <div class="message-content">
+                    <div class="typing-indicator"><span></span><span></span><span></span></div>
+                </div>
+            `;
+            chatMessages.appendChild(responseDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const contentDiv = responseDiv.querySelector('.message-content');
+            let fullText = '';
+            let isFirstChunk = true;
 
             try {
-                // Send metadata user email for N8N to save
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -652,16 +665,38 @@
                     })
                 });
 
-                const data = await response.json();
-                typingDiv.remove();
-                addMessage(data.output || data.text || 'Réponse reçue.', 'assistant');
+                if (!response.ok) throw new Error('Network response was not ok');
 
-                // Refresh sessions list after sending a message (new session created in DB)
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+
+                    if (isFirstChunk) {
+                        contentDiv.innerHTML = ''; // Start fresh
+                        isFirstChunk = false;
+                    }
+
+                    // Simple handling: append chunk text
+                    // If N8N sends JSON chunks (rare with standard streaming), we'd parse.
+                    // For now assume raw text stream.
+                    fullText += chunk;
+                    contentDiv.innerHTML = formatMessage(fullText);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+
+                // Refresh sessions list after sending a message
                 loadSessions();
 
             } catch (error) {
-                typingDiv.remove();
-                addMessage('❌ Erreur de connexion. Réessayez.', 'assistant');
+                console.error(error);
+                if (isFirstChunk) {
+                    contentDiv.innerHTML = '❌ Erreur de connexion. Réessayez.';
+                }
             } finally {
                 isProcessing = false;
                 sendBtn.disabled = messageInput.value.trim() === '';
