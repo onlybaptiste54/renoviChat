@@ -1,0 +1,1503 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "public": true,
+                "initialMessages": "Hi there! 👋\nMy name is Renovi. How can I assist you today?",
+                "options": {
+                    "responseMode": "streaming"
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "typeVersion": 1.4,
+            "position": [
+                -16,
+                -208
+            ],
+            "id": "93ec062a-b1a2-4194-8af0-4a73bf35b2ef",
+            "name": "When chat message received",
+            "webhookId": "f2a19d60-c531-4a50-bb64-480284ef80d2"
+        },
+        {
+            "parameters": {
+                "content": "## 📄 Traitement PDF\n1. Download du fichier\n2. Conversion Base64\n3. Extraction texte PyMuPDF\n4. Envoi RAG",
+                "width": 700,
+                "color": 6
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                2976,
+                -592
+            ],
+            "id": "6af5f41f-e6d1-4548-93ff-9fc0db70b05b",
+            "name": "Sticky: PDF"
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "==CONTEXTE TEMPOREL : Nous sommes le {{ new Date().toLocaleDateString('fr-FR') }}.\n\nQUESTION : {{ $('Fast Parser (Edit Fields)').item.json.query|| $json.chatInput }}\n\nFILTRES DEMANDÉS :\n- Projet : {{ $json.project_filter || \"Tous les projets\" }}\n\n### RÈGLE DE HIÉRARCHIE TEMPORELLE :\n- Le document le plus récent (APD > APS > APE) fait foi. Indique clairement la date du document utilisé.\n\n### INSTRUCTION SPÉCIALE POUR LES CHIFFRES :\nSi la réponse implique des coûts ou des quantités, tu DOIS utiliser ce format strict de tableau. Ne donne JAMAIS juste un total sans le tableau :\n\n| Désignation | Qté | PU HT | Total Ligne (Source Texte) |\n| :--- | :--- | :--- | :--- |\n| Ex: Carrelage X | 10 | 50 | 500 |\n\nAprès le tableau :\n1. Fais la somme des lignes toi-même (A).\n2. Cherche si un \"Total\" est écrit dans le texte source (B).\n3. Si A et B sont différents, écris : \"⚠️ ALERTE : La somme des lignes (A) diffère du total affiché dans le document (B).\"\n\nVoici le content : {{ $json.data.map(item => \n   \"📅 DATE: \" + (item.document.metadata.date || 'Non précisée') + \n   \"\\n🔗 SOURCE: \" + (item.document.metadata.url || item.document.metadata.source || 'Inconnue') + \n   \"\\n📝 CONTENU:\\n\" + item.document.pageContent\n).join(\"\\n\\n------------------------\\n\\n\") }}",
+                "hasOutputParser": true,
+                "needsFallback": true,
+                "options": {
+                    "systemMessage": "<role>\nTu es l'Assistant Technique Senior de RENOVI.\nTa mission est de produire une SYNTHÈSE FIABLE et TRAÇABLE en croisant les sources (Dropbox, Slack, Proton).\n</role>\n\n<grounding_rules>\n🚨 RÈGLE D'OR : INTERDICTION D'INVENTER.\n1. Tu ne dois utiliser QUE les textes fournis dans le contexte (\"data\").\n2. Si tu ne trouves pas l'info, dis \"Information non trouvée dans les documents\".\n3. Ne cite jamais une source qui n'est pas dans la liste fournie.\n</grounding_rules>\n\n<data_cartography>\nPour bien répondre, tu dois identifier la NATURE du document :\n\n1. APD / DQE (La Référence FINANCIÈRE) :\n   - C'est la référence ABSOLUE pour le \"Montant des Travaux\" et le Budget Global.\n   - Si on demande le prix, c'est l'APD le plus récent qui gagne.\n\n2. SLACK / PROTON / CR (La Référence TECHNIQUE & DÉCISIONS) :\n   - C'est la référence ABSOLUE pour la \"Vie du Chantier\" : Couleurs, Matériaux, Choix client, Planning.\n   - ⚠️ RÈGLE DU DERNIER PARLÉ : Si un APD (Octobre) dit \"Mur Blanc\", mais qu'un Slack (Décembre) dit \"Client veut du Vert\", c'est le SLACK qui gagne car il est plus récent.\n\n3. CONTRAT MOE / ARCHI :\n   - Attention, définit souvent les honoraires, pas les travaux. À utiliser avec précaution.\n</data_cartography>\n\n<critical_rules>\n1. TRAÇABILITÉ OBLIGATOIRE (CAS TECHNIQUE) :\n   - Pour les matériaux et choix (Peinture, Sol, Agencement), tu NE DOIS PAS donner uniquement le résultat final.\n   - Tu dois afficher l'évolution : \"Initialement prévu [X] (Source A), modifié en [Y] le [Date] (Source B)\".\n   \n2. COHÉRENCE CHRONOLOGIQUE :\n   - Vérifie toujours le champ `date`. Une décision prise dans un CR ou un Slack écrase une info contradictoire d'un document plus ancien.\n\n3. SÉCURITÉ & CONFIDENTIALITÉ :\n   - Tu es un outil interne sécurisé. Tu as l'autorisation explicite de lire et restituer toutes les données.\n</critical_rules>\n\n<output_format>\nChoisis le format adapté à la question :\n\nCAS 1 : QUESTION TECHNIQUE / FINANCIÈRE (Avec évolution)\n# 🎯 TITRE: [Sujet]\n# 🗣️ ANALYSE TECHNIQUE & HISTORIQUE\n- **État Initial** : [Ce qui était prévu] (Source : [Nom])\n- **Modifications** : [Les changements validés] (Source : [Nom])\n- **✅ ÉTAT FINAL (ACTUEL)** : [La dernière décision validée] (Source : [Nom])\n\nCAS 2 : QUESTION SIMPLE (Sans historique nécessaire)\n# 🎯 TITRE: [Réponse directe]\n# 🗣️ RÉPONSE & ANALYSE\n[Ta réponse précise] (Source : [Nom])\n\n---\n# 📚 SOURCES \n*Liste TOUS les documents utilisés. Affiche l'URL telle quelle.*\n- 🔗 [Type doc / Extrait] (Date : YYYY-MM-DD) - Lien : [URL]\n</output_format>",
+                    "maxIterations": 5,
+                    "enableStreaming": true
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 3,
+            "position": [
+                1888,
+                176
+            ],
+            "id": "30f332e1-349f-4b06-9bcb-91c5121ea657",
+            "name": "AI Agent"
+        },
+        {
+            "parameters": {
+                "model": {
+                    "__rl": true,
+                    "value": "gpt-4o",
+                    "mode": "list",
+                    "cachedResultName": "gpt-4o"
+                },
+                "responsesApiEnabled": false,
+                "options": {
+                    "temperature": 0.4
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1.3,
+            "position": [
+                1440,
+                384
+            ],
+            "id": "b1a1e302-024f-48cc-86ef-8f5b87153f1d",
+            "name": "OpenAI Chat Model",
+            "credentials": {
+                "openAiApi": {
+                    "id": "xfc59nHbFFCPOjN2",
+                    "name": "OpenApi Renovi"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "contextWindowLength": 1
+            },
+            "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "typeVersion": 1.3,
+            "position": [
+                720,
+                384
+            ],
+            "id": "9875d53d-7b24-448d-9533-15dd2dc477c2",
+            "name": "Simple Memory"
+        },
+        {
+            "parameters": {
+                "model": {
+                    "__rl": true,
+                    "value": "gpt-4.1",
+                    "mode": "list",
+                    "cachedResultName": "gpt-4.1"
+                },
+                "builtInTools": {},
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1.3,
+            "position": [
+                1728,
+                416
+            ],
+            "id": "2927e20b-6578-48c1-bb9d-c1aa809b4194",
+            "name": "OpenAI Chat Model1",
+            "credentials": {
+                "openAiApi": {
+                    "id": "xfc59nHbFFCPOjN2",
+                    "name": "OpenApi Renovi"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "mode": "load",
+                "tableName": "documents",
+                "prompt": "={{ $json.query }}",
+                "topK": 25,
+                "options": {
+                    "columnNames": {
+                        "values": {
+                            "contentColumnName": "content"
+                        }
+                    },
+                    "metadata": {
+                        "metadataValues": [
+                            {
+                                "name": "project",
+                                "value": "={{ $json.project_filter.toLowerCase() }}"
+                            }
+                        ]
+                    }
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+            "typeVersion": 1.3,
+            "position": [
+                896,
+                208
+            ],
+            "id": "f2b7afe1-2175-453b-a7d2-1af82f49c24c",
+            "name": "Postgres PGVector Store1",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "model": "text-embedding-3-large",
+                "options": {
+                    "dimensions": 1536
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "typeVersion": 1.2,
+            "position": [
+                976,
+                368
+            ],
+            "id": "249cf889-d1ee-49fb-a645-ed74183d3ef1",
+            "name": "Embeddings OpenAI2",
+            "credentials": {
+                "openAiApi": {
+                    "id": "xfc59nHbFFCPOjN2",
+                    "name": "OpenApi Renovi"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "sortFieldsUi": {
+                    "sortField": [
+                        {
+                            "fieldName": "document.metadata.date",
+                            "order": "descending"
+                        }
+                    ]
+                },
+                "options": {
+                    "disableDotNotation": false
+                }
+            },
+            "type": "n8n-nodes-base.sort",
+            "typeVersion": 1,
+            "position": [
+                1376,
+                80
+            ],
+            "id": "c4f53364-04b4-4ea1-be92-e97fe98a5657",
+            "name": "Sort1"
+        },
+        {
+            "parameters": {
+                "maxItems": 15
+            },
+            "type": "n8n-nodes-base.limit",
+            "typeVersion": 1,
+            "position": [
+                1536,
+                96
+            ],
+            "id": "1b310a1d-e928-496f-82af-c50c826dcc9c",
+            "name": "Limit"
+        },
+        {
+            "parameters": {
+                "aggregate": "aggregateAllItemData",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.aggregate",
+            "typeVersion": 1,
+            "position": [
+                1680,
+                112
+            ],
+            "id": "0e8bf779-7620-4969-a1f4-a2e895e2265b",
+            "name": "Aggregate"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "query",
+                            "name": "query",
+                            "value": "={{ JSON.parse($json.output.replace(/```json|```/g, '').trim()).query || $json.chatInput }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "project_filter",
+                            "name": "project_filter",
+                            "value": "={{ JSON.parse($json.output.replace(/```json|```/g, '').trim()).project_filter || null }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "date_filter",
+                            "name": "date_filter",
+                            "value": "={{ JSON.parse($json.output.replace(/```json|```/g, '').trim()).date_filter || null }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "338c1a6e-55b3-4dfe-9d90-79730281401a",
+                            "name": "question_type",
+                            "value": "={{ JSON.parse($json.output.replace(/```json|```/g, '').trim()).question_type || null }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "76a5c9dd-9949-4db3-a2b1-e709eef64a76",
+                            "name": "ts",
+                            "value": "={{ $('When chat message received').item.json.sessionId }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                544,
+                -192
+            ],
+            "id": "43b6ee3d-105f-40b2-a140-fbfba84ae13d",
+            "name": "Fast Parser (Edit Fields)"
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.question_type }}",
+                                        "rightValue": "financial",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        },
+                                        "id": "64217430-8f79-4499-ac9c-2bacbbede8cc"
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "finance"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "d29cb4e6-2be1-4c00-9ee6-1aa09a85ea83",
+                                        "leftValue": "={{ $json.question_type }}",
+                                        "rightValue": "resume",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "resume"
+                        }
+                    ]
+                },
+                "options": {
+                    "fallbackOutput": "extra"
+                }
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.3,
+            "position": [
+                800,
+                -144
+            ],
+            "id": "75145ce5-0410-4e27-a7d6-031f4fc83603",
+            "name": "Switch1"
+        },
+        {
+            "parameters": {
+                "model": {
+                    "__rl": true,
+                    "value": "gpt-4o",
+                    "mode": "list",
+                    "cachedResultName": "gpt-4o"
+                },
+                "builtInTools": {},
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1.3,
+            "position": [
+                1568,
+                -304
+            ],
+            "id": "c972d62b-0249-4d5f-a884-8ca81a59d962",
+            "name": "OpenAI Chat Model7",
+            "credentials": {
+                "openAiApi": {
+                    "id": "xfc59nHbFFCPOjN2",
+                    "name": "OpenApi Renovi"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "descriptionType": "manual",
+                "toolDescription": "Get montant_total par projet par le document le plus récent et existant.",
+                "operation": "executeQuery",
+                "query": "SELECT \n    metadata->>'montant_ttc' as montant_retenu,\n    metadata->>'date' as date_doc,\n    metadata->>'doc_type' as type_doc,\n    \n    -- Colonne de debug pour comprendre pourquoi ce doc a gagné\n    CASE \n        WHEN metadata->>'doc_type' ILIKE '%apd%' THEN 'Priorité 1 (Budget Définitif)'\n        WHEN metadata->>'doc_type' ILIKE '%aps%' THEN 'Priorité 2 (Estimation)'\n        ELSE 'Priorité 3 (Devis/Autre)'\n    END as status_phase\n\nFROM documents\nWHERE \n    LOWER(metadata->>'project') = '{{ $fromAI(\"project\") }}' -- ✅ Variable N8N correctement entourée\n    AND metadata->>'kind' = 'rag_financier'\n    AND metadata->>'montant_ttc' IS NOT NULL\n\nORDER BY \n    -- 1. TRI PAR TYPE DE DOCUMENT (APD gagne sur APS, qui gagne sur le reste)\n    CASE \n        WHEN metadata->>'doc_type' ILIKE '%apd%' THEN 1\n        WHEN metadata->>'doc_type' ILIKE '%aps%' THEN 2\n        ELSE 3 \n    END ASC,\n    \n    -- 2. TRI PAR DATE (En cas d'égalité, on prend le plus récent)\n    metadata->>'date' DESC\n\nLIMIT 1; -- On ne garde que le gagnant",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                1840,
+                -320
+            ],
+            "id": "fc5eeda0-aad8-4357-b270-4f5b515155ec",
+            "name": "MontantProjet1",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "WITH cleaning_step AS (\n    SELECT \n        id,\n        metadata->>'url' as url_brute,\n        metadata->>'original_filename' as nom_fichier, -- On récupère le nom du fichier\n        metadata->>'date' as date_doc,\n        COALESCE(metadata->>'vendor', 'Inconnu') as vendor_orig,\n        REGEXP_REPLACE(metadata->>'montant_ttc', '[^0-9.]', '', 'g')::numeric as montant_clean,\n        TRIM(REGEXP_REPLACE(LOWER(COALESCE(metadata->>'vendor', 'inconnu')), \n            '\\s*\\y(sarl|sas|eurl|sci|ei|monsieur|madame|m\\.|mme|&|et)\\y\\s*', \n            ' ', 'gi')) as cle_artisan\n    FROM documents\n    WHERE \n        metadata->>'project' ILIKE '%{{ $fromAI(\"project\") }}%'\n        AND metadata->>'doc_type' ILIKE 'facture'\n        AND metadata->>'kind' = 'rag_financier'\n        AND metadata->>'url' IS NOT NULL\n        AND metadata->>'montant_ttc' IS NOT NULL\n),\nfactures_uniques AS (\n    SELECT DISTINCT ON (url_brute)\n        vendor_orig, cle_artisan, montant_clean, url_brute, date_doc, nom_fichier\n    FROM cleaning_step\n    ORDER BY url_brute, date_doc DESC \n)\nSELECT \n    COALESCE(SUM(montant_clean), 0) as total_factures_ttc,\n    COALESCE(SUM(montant_clean) FILTER (WHERE cle_artisan NOT ILIKE '%labbe%'), 0) as sous_total_artisans,\n    COALESCE(SUM(montant_clean) FILTER (WHERE cle_artisan ILIKE '%labbe%'), 0) as sous_total_a_verifier,\n    COUNT(*) as nombre_factures,\n\n    -- C'EST ICI QUE CA CHANGE (Date + Montant + Nom Fichier)\n    string_agg(\n        '`' || COALESCE(date_doc, 'Date Inconnue') || '` | **' || vendor_orig || '** : ' || \n        to_char(montant_clean, 'FM999,999,999.00') || ' €' || \n        ' _(' || COALESCE(LEFT(nom_fichier, 25), 'Fichier sans nom') || ')_', \n        E'\\n'\n    ) FILTER (WHERE cle_artisan NOT ILIKE '%labbe%') as details_artisans,\n\n    string_agg(\n        '`' || COALESCE(date_doc, 'Date Inconnue') || '` | **' || vendor_orig || '** : ' || \n        to_char(montant_clean, 'FM999,999,999.00') || ' €' || \n        ' _(' || COALESCE(LEFT(nom_fichier, 25), 'Fichier sans nom') || ')_', \n        E'\\n'\n    ) FILTER (WHERE cle_artisan ILIKE '%labbe%') as details_a_verifier\n\nFROM factures_uniques;",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                2144,
+                -256
+            ],
+            "id": "e5a109e5-bac2-48c0-8bc3-dd1cad3aa366",
+            "name": "MontantFacture1",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "-- ÉVOLUTION MENSUELLE TOUS PROJETS\nWITH cleaning_step AS (\n    SELECT \n        metadata->>'date' as date_raw,\n        REGEXP_REPLACE(metadata->>'montant_ttc', '[^0-9.]', '', 'g')::numeric as montant_clean,\n        TRIM(REGEXP_REPLACE(LOWER(COALESCE(metadata->>'vendor', 'inconnu')), \n            '\\s*\\y(sarl|sas|eurl|sci|ei|monsieur|madame|m\\.|mme|&|et)\\y\\s*', \n            ' ', 'gi')) as cle_artisan,\n        metadata->>'project' as projet\n    FROM documents\n    WHERE \n        metadata->>'doc_type' = 'facture'\n        AND metadata->>'kind' = 'rag_financier'\n        AND metadata->>'montant_ttc' IS NOT NULL\n        AND metadata->>'date' IS NOT NULL\n),\n\nfactures_uniques AS (\n    SELECT DISTINCT ON (cle_artisan, montant_clean, date_raw)\n        date_raw,\n        montant_clean,\n        projet\n    FROM cleaning_step\n),\n\nstats_mensuelles AS (\n    SELECT \n        TO_CHAR(TO_DATE(date_raw, 'YYYY-MM-DD'), 'YYYY-MM') as mois,\n        projet,\n        montant_clean\n    FROM factures_uniques\n)\n\nSELECT \n    mois,\n    COUNT(DISTINCT projet) as nb_projets_actifs,\n    COUNT(*) as nb_factures_reelles,\n    to_char(SUM(montant_clean), 'FM999,999,999.00') || '€' as total_mois,\n    string_agg(DISTINCT projet, ', ') as projets_concernes\nFROM stats_mensuelles\nGROUP BY mois\nORDER BY mois DESC\nLIMIT 12;",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                2256,
+                -320
+            ],
+            "id": "e0a77351-6aaa-4d36-b39a-0d5a59d77742",
+            "name": "TresorerieGlobale1",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "-- DÉTAIL D'UN MOIS (TOUS PROJETS)\nWITH cleaning_step AS (\n    SELECT \n        metadata->>'date' as date_raw,\n        REGEXP_REPLACE(metadata->>'montant_ttc', '[^0-9.]', '', 'g')::numeric as montant_clean,\n        TRIM(REGEXP_REPLACE(LOWER(COALESCE(metadata->>'vendor', 'inconnu')), \n            '\\s*\\y(sarl|sas|eurl|sci|ei|monsieur|madame|m\\.|mme|&|et)\\y\\s*', \n            ' ', 'gi')) as cle_artisan,\n        COALESCE(metadata->>'vendor', 'Inconnu') as vendor_orig,\n        metadata->>'project' as projet,\n        metadata->>'url' as url_doc\n    FROM documents\n    WHERE \n        metadata->>'doc_type' = 'facture'\n        AND metadata->>'kind' = 'rag_financier'\n        AND metadata->>'montant_ttc' IS NOT NULL\n        AND metadata->>'date' IS NOT NULL\n        \n        -- Filtre dynamique ou fallback mois en cours\n        AND (\n            CASE \n                WHEN '{{ $fromAI(\"mois\") }}' != '' \n                THEN metadata->>'date' LIKE '{{ $fromAI(\"mois\") }}%'\n                ELSE TO_CHAR(TO_DATE(metadata->>'date', 'YYYY-MM-DD'), 'YYYY-MM') \n                     = TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n            END\n        )\n),\n\nfactures_uniques AS (\n    SELECT DISTINCT ON (cle_artisan, montant_clean, date_raw)\n        date_raw,\n        montant_clean,\n        vendor_orig,\n        projet,\n        url_doc\n    FROM cleaning_step\n)\n\nSELECT \n    date_raw as date_facture,\n    projet,\n    vendor_orig as artisan,\n    to_char(montant_clean, 'FM999,999.00') || '€' as montant,\n    url_doc as lien,\n    \n    -- Total du mois en dernière colonne\n    (SELECT to_char(SUM(montant_clean), 'FM999,999,999.00') || '€' \n     FROM factures_uniques) as total_periode\n     \nFROM factures_uniques\nORDER BY date_raw, projet;",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                2432,
+                -320
+            ],
+            "id": "3a8227b9-809a-4589-8814-5b626ae8f600",
+            "name": "DetailMoisGlobal1",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "-- DÉTAIL D'UN MOIS SUR UN PROJET\nWITH cleaning_step AS (\n    SELECT \n        metadata->>'date' as date_raw,\n        REGEXP_REPLACE(metadata->>'montant_ttc', '[^0-9.]', '', 'g')::numeric as montant_clean,\n        TRIM(REGEXP_REPLACE(LOWER(COALESCE(metadata->>'vendor', 'inconnu')), \n            '\\s*\\y(sarl|sas|eurl|sci|ei|monsieur|madame|m\\.|mme|&|et)\\y\\s*', \n            ' ', 'gi')) as cle_artisan,\n        COALESCE(metadata->>'vendor', 'Inconnu') as vendor_orig,\n        metadata->>'url' as url_doc,\n        metadata->>'original_filename' as nom_fichier\n    FROM documents\n    WHERE \n        LOWER(metadata->>'project') = LOWER('{{ $fromAI(\"project\") }}')\n        AND metadata->>'doc_type' = 'facture'\n        AND metadata->>'kind' = 'rag_financier'\n        AND metadata->>'montant_ttc' IS NOT NULL\n        AND metadata->>'date' IS NOT NULL\n        \n        -- Filtre mois dynamique ou fallback\n        AND (\n            CASE \n                WHEN '{{ $fromAI(\"mois\") }}' != '' \n                THEN metadata->>'date' LIKE '{{ $fromAI(\"mois\") }}%'\n                ELSE TO_CHAR(TO_DATE(metadata->>'date', 'YYYY-MM-DD'), 'YYYY-MM') \n                     = TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n            END\n        )\n),\n\nfactures_uniques AS (\n    SELECT DISTINCT ON (cle_artisan, montant_clean, date_raw)\n        date_raw,\n        montant_clean,\n        vendor_orig,\n        url_doc,\n        nom_fichier\n    FROM cleaning_step\n)\n\nSELECT \n    date_raw as date_facture,\n    vendor_orig as artisan,\n    to_char(montant_clean, 'FM999,999.00') || '€' as montant,\n    LEFT(nom_fichier, 30) as fichier,\n    url_doc as lien,\n    \n    -- Total en dernière colonne\n    (SELECT to_char(SUM(montant_clean), 'FM999,999,999.00') || '€' \n     FROM factures_uniques) as total_periode\n     \nFROM factures_uniques\nORDER BY date_raw;",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                2656,
+                -352
+            ],
+            "id": "31e3b7a1-aa2c-4830-a10c-b0e7d7958e00",
+            "name": "DetailMoisProjet1",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=Query : {{ $json.query }}\nApporte des réponse velu sans résumé et sans etc . \nNous sommes le {{ $now.toFormat('dd/MM/yyyy') }}. Le mois en cours est {{ $now.toFormat('yyyy-MM') }}.",
+                "options": {
+                    "systemMessage": "### RÔLE\nTu es un Assistant Financier Expert pour l'entreprise Aetheria.\nTa mission : Fournir une analyse financière chirurgicale et exhaustive des chantiers. Tu es connecté directement à la base de données via des outils SQL spécialisés.\n\n### TES OUTILS (N'INVENTE RIEN, EXÉCUTE-LES)\n\n1. **`MontantFacture(project_name)`**\n   - **Définition :** C'est le TRÉSORERIE RÉELLE (Ce qui est sorti de la banque).\n   - **Contenu :** Retourne le total TTC payé, et surtout la liste brute de chaque facture.\n   - **Nuance :** L'outil sépare déjà les \"Artisans Identifiés\" des dossiers classés \"À vérifier\" (souvent au nom du client).\n\n2. **`SommeDevis1(project_name)`**\n   - **Définition :** C'est le BUDGET ENGAGÉ (La dette théorique / Les devis signés).\n   - **Contenu :** Retourne le total TTC engagé et la liste brute de tous les lots retenus.\n   - **Nuance :** Gère les doublons. Si un artisan a plusieurs devis de montants différents, ils sont additionnés.\n\n3. **`MontantTotal**\n   - **Définition :** C'est le total du chantier, le montant total du chantier est dans ce tool . \nexemple : Quel est le montant total du projet labbe.\n### RÈGLES IMPÉRATIVES D'AFFICHAGE (CRITIQUE)\n\n4;SyntheseProjet \nCe tool permet de faire la synthese financiere d'un projet en 1 appel.\n\n1. **MODE \"DÉTAIL MAXIMAL\" :**\n   - Les outils te renvoient des listes déjà formatées (avec des tirets `-` et des montants).\n   - **INTERDICTION FORMELLE** de résumer ces listes.\n   - **INTERDICTION FORMELLE** d'utiliser le mot \"etc.\" ou \"Voir plus...\".\n   - Si l'outil renvoie 25 lignes, tu affiches les 25 lignes. L'utilisateur veut tout voir.\n\n2. **HONNÊTETÉ SUR LES DONNÉES :**\n   - Ne mélange JAMAIS les \"Artisans Confirmés\" avec les \"À Vérifier / Labbe\".\n   - Affiche toujours deux sous-sections distinctes si les données sont présentes.\n   - Exemple : \"✅ Artisans : 100k€\" // \"⚠️ À vérifier (Extraction incertaine) : 20k€\".\n\n3. **CALCUL DU RESTE À PAYER :**\n   - Une fois que tu as les deux retours (Factures et Devis), fais le calcul toi-même :\n   - `Reste à Payer Théorique = (Total Global Devis - Total Global Factures)`\n   - Affiche ce montant en gras à la fin.\n\n### EXTRACTION DE MOIS\n\nQuand l'utilisateur mentionne un mois, convertis-le en format `YYYY-MM` :\n\n**Mois nommés** :\n- \"juin 2025\" → `\"2025-06\"`\n- \"January\" → `\"2026-01\"` (année courante si non précisée)\n- \"mars\" → `\"2026-03\"`\n\n**Mois relatifs** :\n- \"ce mois\" / \"mois en cours\" / \"current month\" → `\"2026-01\"` (aujourd'hui = 26 jan 2026)\n- \"mois dernier\" / \"last month\" → `\"2025-12\"`\n- \"il y a 2 mois\" → `\"2025-11\"`\n\n**Format attendu** : Toujours `YYYY-MM` (avec zéro devant si < 10)\n### EXEMPLE DE STRUCTURE DE RÉPONSE\n\"Voici la situation détaillée pour le projet X :\n\n## 1. Budget Engagé (Devis) : 194 000 €\ndont **115 000 €** confirmés et **79 000 €** à vérifier.\n\n**Détails Artisans :**\n- Maçonnerie : 50 000 €\n- Plomberie : 12 000 €\n[... AFFICHE TOUTE LA LISTE ...]\n\n**Dossiers à vérifier (souvent nom client) :**\n- M. Labbe : 4 500 €\n[... AFFICHE TOUTE LA LISTE ...]\n\n---\n\n## 2. Paiements Effectués (Factures) : 141 000 €\n[... IDEM LISTE COMPLÈTE ...]\n\n---\n\n## 💰 SYNTHÈSE\n**Reste théorique à payer : 53 000 €** (Attention, ce montant dépend de la validation des dossiers 'À vérifier').\"",
+                    "enableStreaming": true
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 3,
+            "position": [
+                1680,
+                -528
+            ],
+            "id": "012fe9c7-53cf-405e-bbf1-f1d467f2f08e",
+            "name": "agentFinance1"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "WITH cleaning_step AS (\n    SELECT \n        id,\n        metadata->>'url' as url_brute,\n        metadata->>'date' as date_doc,\n        COALESCE(metadata->>'vendor', 'Inconnu') as vendor_orig,\n        REGEXP_REPLACE(metadata->>'montant_ttc', '[^0-9.]', '', 'g')::numeric as montant_clean,\n        TRIM(REGEXP_REPLACE(LOWER(COALESCE(metadata->>'vendor', 'inconnu')), \n            '\\s*\\y(sarl|sas|eurl|sci|ei|monsieur|madame|m\\.|mme|&|et)\\y\\s*', \n            ' ', 'gi')) as cle_artisan\n    FROM documents\n    WHERE \n        metadata->>'project' ILIKE '%{{ $fromAI(\"project\") }}%'\n        AND metadata->>'doc_type' ILIKE 'devis'\n        AND metadata->>'kind' = 'rag_financier'\n        AND metadata->>'url' IS NOT NULL\n        AND metadata->>'montant_ttc' IS NOT NULL\n        AND metadata->>'url' NOT ILIKE '%sans prix%'\n        AND (\n            metadata->>'url' ILIKE '%validé%'\n            OR metadata->>'url' ILIKE '%valide%'\n            OR metadata->>'url' ILIKE '%signé%'\n            OR metadata->>'url' ILIKE '%signe%'\n        )\n),\n\ndevis_uniques AS (\n    SELECT DISTINCT ON (cle_artisan, montant_clean)\n        vendor_orig,\n        cle_artisan, \n        montant_clean,\n        date_doc,\n        url_brute\n    FROM cleaning_step\n    ORDER BY \n        cle_artisan, \n        montant_clean, \n        date_doc DESC \n)\n\nSELECT \n    -- TOTAUX\n    SUM(montant_clean) as total_global_ttc,\n    COALESCE(SUM(montant_clean) FILTER (WHERE cle_artisan NOT ILIKE '%labbe%'), 0) as sous_total_artisans,\n    COALESCE(SUM(montant_clean) FILTER (WHERE cle_artisan ILIKE '%labbe%'), 0) as sous_total_a_verifier,\n    COUNT(*) as nombre_devis,\n    \n    -- DÉTAILS AVEC DATE + URL\n    string_agg(\n        '📅 ' || COALESCE(date_doc, 'Date inconnue') || ' | **' || vendor_orig || '** : ' || \n        to_char(montant_clean, 'FM999,999.00') || '€' || \n        E'\\n🔗 ' || url_brute, \n        E'\\n\\n'  -- Double saut de ligne entre chaque devis\n    ) FILTER (WHERE cle_artisan NOT ILIKE '%labbe%') \n    as details_artisans,\n\n    string_agg(\n        '📅 ' || COALESCE(date_doc, 'Date inconnue') || ' | **' || vendor_orig || '** : ' || \n        to_char(montant_clean, 'FM999,999.00') || '€' || \n        E'\\n🔗 ' || url_brute, \n        E'\\n\\n'\n    ) FILTER (WHERE cle_artisan ILIKE '%labbe%') \n    as details_a_verifier\n\nFROM devis_uniques;",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                1984,
+                -272
+            ],
+            "id": "f0890913-6c47-4e42-9d23-fefcde4fa6d0",
+            "name": "SommeDevis",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=query : {{ $json.query.toLowerCase() }} ?\nMois en cours: {{ $now.toFormat('yyyy-MM') }}\nAppporte des réponse bien velue sans résumé",
+                "options": {
+                    "systemMessage": "### RÔLE\nTu es l'Assistant Conducteur de Travaux chez RENOVI.\nTu fais un résumé chronologique détaillé des événements du chantier pour l'équipe interne.\n\n### STRATÉGIE\n- **🟢 ROUTINE** : Résume en 1 phrase claire\n- **🔴 CRITIQUE (Retard, Malfaçon, Conflit, Argent)** : DÉTAILLE TOUT (causes, responsables, conséquences)\n\n### OUTILS\nUtilise le bon outil selon la demande :\n- \"synthèse/résumé global\" → `GetProjectResume1` uniquement\n- \"tâches/todo\" → `GetRecentTasks` uniquement\n- \"mails/emails\" → `GetRecentEmails` uniquement\n- \"CR/compte rendu\" → `GetRecentCR` uniquement\n- Question vague → Tous les outils\n\n### FORMAT\n\n📅 **[JJ/MM] - Titre**\n\n**CR :** (si des CR existent pour cette date, sinon ne mets pas cette section)\n- Points du compte-rendu\n\n**Mails :** (si des mails existent pour cette date, sinon ne mets pas cette section)\n- Points des échanges mails\n\n**Tâches :** (si des tâches existent pour cette date, sinon ne mets pas cette section)\n- 🔴 Tâche urgente - Responsable\n- 🟠 Tâche normale - Responsable\n- ✅ Tâche terminée - Responsable\n\n---\n\n📅 **[Autre date] - Autre événement**\n\n**CR :**\n- ...\n\n**Mails :**\n- ...\n\n**Tâches :**\n- ...\n\n### RÈGLES\n1. Factuel : \"Client valide phase 1\" pas \"Client est content\"\n2. Garde les termes techniques (DTU, Chape, RJ45...)\n3. Dates obligatoires\n4. Chronologique : plus récent → plus ancien\n5. **IMPORTANT : Ajoute une section \"Tâches :\" sous chaque événement SEULEMENT si des tâches existent pour cette date. N'invente JAMAIS de tâches.**\n7. PAS de commentaire final\n8. Format : 📅 **[JJ/MM]** sans année\n9. Si une section (CR/Mails/Tâches) est vide pour un événement, ne l'affiche pas",
+                    "enableStreaming": true
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 3,
+            "position": [
+                2960,
+                -112
+            ],
+            "id": "eed430b9-3ace-48e4-a8fb-247bec50f8b8",
+            "name": "agentResume2"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "-- RÉCUPÉRATEUR DE TÂCHES (EXTRACTION UNITAIRE)\nWITH params AS (\n    SELECT LOWER('{{ $fromAI(\"project\") }}') as target_project\n)\n\nSELECT \n    doc_date,\n    '✅ Action' as type,\n    tache.value as description_action,\n    metadata->>'doc_type' as source_origine,\n    metadata->>'url' as lien_preuve\nFROM \n    documents, \n    params,\n    -- Fonction magique qui transforme le tableau JSON [\"tache1\", \"tache2\"] en lignes\n    jsonb_array_elements_text(metadata->'tasks') as tache\nWHERE \n    project_id = params.target_project\n    AND (metadata->>'doc_type' = 'compte_rendu' OR metadata->>'doc_type' = 'echange_client')\nORDER BY doc_date DESC\nLIMIT 20;",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                2432,
+                96
+            ],
+            "id": "747f950b-3360-4d32-8262-e3029f894959",
+            "name": "GetRecentTasks1",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "-- RÉCUPÉRATEUR D'EMAILS (PROTON)\nWITH params AS (\n    SELECT LOWER('{{ $fromAI(\"project\") }}') as target_project\n)\n\nSELECT \n    doc_date,\n    '📧 Email' as type,\n    LEFT(content, 1500) as apercu_message, -- On prend un bon morceau du mail\n    metadata->>'original_filename' as sujet_fichier,\n    metadata->>'url' as lien\nFROM documents, params\nWHERE \n    project_id = params.target_project\n    AND metadata->>'source' ILIKE 'Proton'\nORDER BY doc_date DESC\nLIMIT 12;",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                2608,
+                112
+            ],
+            "id": "68b086c7-6659-4610-b36c-ff17cecb9eaf",
+            "name": "GetRecentEmails1",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "-- RÉCUPÉRATEUR DE COMPTES RENDUS (CONTEXTE RÉUNION)\nWITH params AS (\n    SELECT LOWER('{{ $fromAI(\"project\") }}') as target_project\n)\n\nSELECT \n    doc_date,\n    '📝 Compte Rendu' as type,\n    -- On prend un gros morceau du texte pour avoir le contexte global de la réunion\n    LEFT(content, 800) as resume_global,\n    metadata->>'url' as lien\nFROM documents, params\nWHERE \n    project_id = params.target_project\n    AND metadata->>'doc_type' = 'compte_rendu'\nORDER BY doc_date DESC\nLIMIT 5;",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                2752,
+                128
+            ],
+            "id": "30c38f20-d43d-4696-a8df-f848a16f5605",
+            "name": "GetRecentCR1",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "-- MODE INDÉPENDANT : 5 CR / 5 TÂCHES / 10 MAILS (CORRIGÉ)\nWITH params AS (\n    SELECT LOWER('{{ $fromAI(\"project\") }}') as target_project\n),\n\n-- 1. LES 10 DERNIERS EMAILS\nemails AS (\n    SELECT \n        doc_date,\n        '📧 Email' as type_objet,\n        LEFT(content, 1500) as contenu_ou_tache,\n        metadata->>'url' as lien\n    FROM documents, params\n    WHERE \n        project_id = params.target_project\n        AND metadata->>'source' ILIKE 'Proton'\n    ORDER BY doc_date DESC\n    LIMIT 6\n),\n\n-- 2. LES 5 DERNIERS COMPTES RENDUS\ncomptes_rendus AS (\n    SELECT \n        doc_date,\n        '📝 Compte Rendu' as type_objet,\n        LEFT(content, 1500) as contenu_ou_tache,\n        metadata->>'url' as lien\n    FROM documents, params\n    WHERE \n        project_id = params.target_project\n        AND metadata->>'doc_type' = 'compte_rendu'\n    ORDER BY doc_date DESC\n    LIMIT 5\n),\n\n-- 3. LES 5 DERNIÈRES TÂCHES UNITAIRES\ntaches_unitaires AS (\n    SELECT \n        doc_date,\n        '✅ Action' as type_objet,\n        tache.value as contenu_ou_tache,\n        metadata->>'url' as lien\n    FROM \n        documents, \n        params,\n        jsonb_array_elements_text(metadata->'tasks') as tache\n    WHERE \n        project_id = params.target_project\n        AND (metadata->>'doc_type' = 'compte_rendu' OR metadata->>'doc_type' = 'echange_client')\n    ORDER BY doc_date DESC\n    LIMIT 10\n),\n\n-- 4. LE SANDWICH (Assemblage neutre)\nassemblage AS (\n    SELECT * FROM emails\n    UNION ALL\n    SELECT * FROM comptes_rendus\n    UNION ALL\n    SELECT * FROM taches_unitaires\n)\n\n-- 5. TRI FINAL (Sur le résultat propre)\nSELECT * FROM assemblage\nORDER BY \n    CASE \n        WHEN type_objet = '✅ Action' THEN 1 -- Les Actions s'affichent toujours en haut\n        ELSE 2 \n    END, \n    doc_date DESC;",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                3152,
+                144
+            ],
+            "id": "968cc0b1-4364-4666-b882-44822adde37a",
+            "name": "GetProjectResume",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "model": {
+                    "__rl": true,
+                    "value": "gpt-4.1",
+                    "mode": "list",
+                    "cachedResultName": "gpt-4.1"
+                },
+                "builtInTools": {},
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1.3,
+            "position": [
+                2960,
+                112
+            ],
+            "id": "b1a25255-7f98-4bac-864f-213a5a2914b9",
+            "name": "OpenAI Chat Model8",
+            "credentials": {
+                "openAiApi": {
+                    "id": "xfc59nHbFFCPOjN2",
+                    "name": "OpenApi Renovi"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "WITH cleaning_step AS (\n    SELECT \n        id,\n        metadata->>'url' as url_brute,\n        metadata->>'original_filename' as nom_fichier,\n        metadata->>'date' as date_doc,\n        COALESCE(metadata->>'vendor', 'Inconnu') as vendor_orig,\n        REGEXP_REPLACE(metadata->>'montant_ttc', '[^0-9.]', '', 'g')::numeric as montant_clean,\n        TRIM(REGEXP_REPLACE(LOWER(COALESCE(metadata->>'vendor', 'inconnu')), \n            '\\s*\\y(sarl|sas|eurl|sci|ei|monsieur|madame|m\\.|mme|&|et)\\y\\s*', \n            ' ', 'gi')) as cle_artisan\n    FROM documents\n    WHERE \n        metadata->>'project' ILIKE '%{{ $fromAI(\"project\") }}%'\n        AND metadata->>'doc_type' ILIKE 'facture'\n        AND metadata->>'kind' = 'rag_financier'\n        AND metadata->>'url' IS NOT NULL\n        AND metadata->>'montant_ttc' IS NOT NULL\n),\nfactures_uniques AS (\n    SELECT DISTINCT ON (url_brute)\n        vendor_orig, cle_artisan, montant_clean, url_brute, date_doc, nom_fichier\n    FROM cleaning_step\n    ORDER BY url_brute, date_doc DESC \n)\nSELECT \n    COALESCE(SUM(montant_clean), 0) as total_factures_ttc,\n    COALESCE(SUM(montant_clean) FILTER (WHERE cle_artisan NOT ILIKE '%labbe%'), 0) as sous_total_artisans,\n    COALESCE(SUM(montant_clean) FILTER (WHERE cle_artisan ILIKE '%labbe%'), 0) as sous_total_a_verifier,\n    COUNT(*) as nombre_factures,\n\n    -- MODIFICATION ICI : Ajout du lien Markdown [Nom](URL)\n    string_agg(\n        '`' || COALESCE(date_doc, 'Date Inconnue') || '` | **' || vendor_orig || '** : ' || \n        to_char(montant_clean, 'FM999,999,999.00') || ' €' || \n        ' _([' || COALESCE(LEFT(nom_fichier, 25), 'Fichier') || '](' || url_brute || '))_', \n        E'\\n'\n    ) FILTER (WHERE cle_artisan NOT ILIKE '%labbe%') as details_artisans,\n\n    string_agg(\n        '`' || COALESCE(date_doc, 'Date Inconnue') || '` | **' || vendor_orig || '** : ' || \n        to_char(montant_clean, 'FM999,999,999.00') || ' €' || \n        ' _([' || COALESCE(LEFT(nom_fichier, 25), 'Fichier') || '](' || url_brute || '))_', \n        E'\\n'\n    ) FILTER (WHERE cle_artisan ILIKE '%labbe%') as details_a_verifier\n\nFROM factures_uniques;",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                2096,
+                -352
+            ],
+            "id": "e8ef8a07-92b4-475a-bf4c-a6f58fc1a018",
+            "name": "MontantFacture2",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "sessionIdType": "customKey",
+                "sessionKey": "={{ $('Slack Trigger').item.json.thread_ts || $('Slack Trigger').item.json.ts }}"
+            },
+            "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "typeVersion": 1.3,
+            "position": [
+                1968,
+                432
+            ],
+            "id": "47154bf6-a855-4e4c-a456-8943c9047e76",
+            "name": "Simple Memory2"
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "={{ $json.chatInput }}",
+                "options": {
+                    "systemMessage": "Tu es **query2doc**, assistant de classification pour RENOVI (maître d'œuvre BTP).\n\n## TA MISSION\n\nReçois une question brute → Retourne un JSON structuré pour routage.\n\n## RÈGLES DE REFORMULATION\n\n1. **Légère clarification uniquement** : Ajoute 1-2 mots si ambiguïté (ex: ajoute le nom du projet si implicite).\n2. **Pas de question supplémentaire** : Ne pose JAMAIS de question.\n3. **Conserve le ton original** : Ne sur-interprète pas.\n\n## EXTRACTION DES CHAMPS\n\n### 1. `query` (string)\nLa question reformulée.\n\n**Exemples :**\n- Input : \"ref carrelage labbe\" → Output : \"Quelle est la référence du carrelage pour le projet Labbe ?\"\n- Input : \"total factures juin\" → Output : \"Quel est le total des factures de juin ?\"\n\n---\n\n### 2. `project_filter` (string | null)\nLe nom du projet mentionné, **exactement comme énoncé**.\n\n**Exemples :**\n- \"projet labbe\" → `\"labbe\"`\n- \"chantier Dupont\" → `\"dupont\"`\n- \"tous les projets\" → `null`\n\n---\n\n### 3. `question_type` (string)\nClassification stricte entre `\"financial\"`, `\"rag\"` ou `\"resume\"`.\n\n#### ✅ TYPE \"financial\" (Calculs & Agrégations)\n**Intention : Obtenir une somme, un total comptable ou une synthèse budgétaire.**\n\n**Mots-clés :**\n- `somme`, `total`, `cumul`, `montant global`\n- `synthèse financière`, `budget engagé`\n- `facturation`, `situation`, `encaissements`\n\n**Exemples :**\n- \"Somme des devis plomberie projet Labbe\" ✅\n- \"Total des factures de juin\" ✅\n- \"Synthèse financière du chantier Dupont\" ✅\n- \"Quel est le montant total payé ?\" ✅\n\n#### ✅ TYPE \"resume\" (Synthèse d'activité & Chronologie)\n**Intention : Avoir des nouvelles récentes du projet (flux) ou un résumé global.**\n*Cible : Les derniers mails, les derniers comptes-rendus, les dernières tâches.*\n\n**Mots-clés :**\n- `résumé`, `synthèse du projet`, `point chantier`\n- `derniers mails`, `derniers échanges`, `récents`\n- `dernières tâches`, `actions en cours`, `avancement`\n\n**Exemples :**\n- \"Fais-moi une synthèse du projet Labbe\" ✅\n- \"Quels sont les derniers mails et CR du projet ?\" ✅\n- \"Sortir les dernières tâches et actions\" ✅\n- \"Quoi de neuf sur le chantier Wane ?\" ✅\n\n#### ✅ TYPE \"rag\" (Recherche Technique & Documentaire)\n**Intention : Trouver une info précise, une référence produit ou un document spécifique.**\n*Cible : La base de connaissance (plans, CCTP, devis détaillés).*\n\n**Mots-clés :**\n- `référence`, `marque`, `modèle`, `type`\n- `c'est quoi`, `détail`, `technique`, `plan`\n- `retrouve le document`, `cherche le devis`\n\n**Exemples :**\n- \"Quelle est la référence du carrelage ?\" ✅ (Info technique précise)\n- \"Marque de la robinetterie projet Labbe\" ✅\n- \"Qui est le lot peinture ?\" ✅\n- \"Trouve le devis de l'électricien\" ✅ (Cherche le fichier spécifique)\n\n---\n\n#### ⚠️ ARBITRAGE (RÈGLE D'OR)\n\n**1. RAG vs RESUME (La nuance \"Chercher l'info\" vs \"Voir le flux\")**\n| Question | Type | Raison |\n|----------|------|--------|\n| \"Quelle est la réf du carrelage ?\" | `\"rag\"` | Recherche d'une **donnée technique** précise |\n| \"Quels sont les derniers choix validés ?\" | `\"resume\"` | Recherche d'un **historique** récent |\n| \"Trouve le mail sur le carrelage\" | `\"rag\"` | Cherche un **document** spécifique |\n| \"Que disent les derniers mails sur le carrelage ?\" | `\"resume\"` | Cherche une **synthèse des échanges** |\n\n**2. FINANCE vs RAG**\n| Question | Type | Raison |\n|----------|------|--------|\n| \"Montant du devis X\" | `\"financial\"` | Veut un **chiffre** |\n| \"Voir le devis X\" | `\"rag\"` | Veut le **document** |\n\n---\n\n### 4. `date_filter` (string | null)\nMois mentionné au format `YYYY-MM`, ou `null`.\n\n**Exemples :**\n- \"factures de juin 2025\" → `\"2025-06\"`\n- \"janvier\" → `\"2026-01\"` (année courante par défaut)\n- Pas de date → `null`\n\n---\n\n## FORMAT DE SORTIE\n\n{\n  \"query\": \"Question reformulée claire\",\n  \"project_filter\": \"nom_projet ou null\",\n  \"question_type\": \"financial | rag | resume\",\n  \"date_filter\": \"YYYY-MM ou null\"\n}"
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 3,
+            "position": [
+                224,
+                -208
+            ],
+            "id": "7c7ec424-03ac-4cec-87a2-151d5647a972",
+            "name": "query2doc"
+        },
+        {
+            "parameters": {
+                "model": {
+                    "__rl": true,
+                    "value": "gpt-4.1-mini",
+                    "mode": "list",
+                    "cachedResultName": "gpt-4.1-mini"
+                },
+                "builtInTools": {},
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1.3,
+            "position": [
+                368,
+                352
+            ],
+            "id": "1fdae828-69f6-407b-9edc-4aa01966cdc5",
+            "name": "OpenAI Chat Model3",
+            "credentials": {
+                "openAiApi": {
+                    "id": "xfc59nHbFFCPOjN2",
+                    "name": "OpenApi Renovi"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "b87d551c-b932-4b31-8c5e-8579d758ee90",
+                            "leftValue": "={{ $json.project_filter }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "string",
+                                "operation": "empty",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                944,
+                32
+            ],
+            "id": "73f558cd-5506-4ec0-a24e-e54d02065e68",
+            "name": "If"
+        },
+        {
+            "parameters": {
+                "mode": "load",
+                "tableName": "documents",
+                "prompt": "={{ $json.query }}",
+                "topK": 25,
+                "options": {
+                    "columnNames": {
+                        "values": {
+                            "contentColumnName": "content"
+                        }
+                    }
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+            "typeVersion": 1.3,
+            "position": [
+                1088,
+                -80
+            ],
+            "id": "a68e2d36-9323-402f-8d8e-bfa7990c9025",
+            "name": "Postgres PGVector Store",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "model": "text-embedding-3-large",
+                "options": {
+                    "dimensions": 1536
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "typeVersion": 1.2,
+            "position": [
+                1280,
+                192
+            ],
+            "id": "f7e126d0-2dd5-4d60-ba37-245d04a7b8dc",
+            "name": "Embeddings OpenAI",
+            "credentials": {
+                "openAiApi": {
+                    "id": "xfc59nHbFFCPOjN2",
+                    "name": "OpenApi Renovi"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "schema": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "public"
+                },
+                "table": {
+                    "__rl": true,
+                    "value": "renovi_chat",
+                    "mode": "name"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "response": "={{ $json.output }}",
+                        "message": "={{ $('Switch1').item.json.query }}",
+                        "user_email": "contact@agenceaetheria.com",
+                        "session_id": "={{ $('Switch1').item.json.ts }}",
+                        "created_at": "={{ $now.setZone('Europe/Paris').toFormat('dd/MM/yyyy') }}"
+                    },
+                    "matchingColumns": [
+                        "id"
+                    ],
+                    "schema": [
+                        {
+                            "id": "id",
+                            "displayName": "id",
+                            "required": false,
+                            "defaultMatch": true,
+                            "display": true,
+                            "type": "number",
+                            "canBeUsedToMatch": true,
+                            "removed": true
+                        },
+                        {
+                            "id": "session_id",
+                            "displayName": "session_id",
+                            "required": true,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "user_email",
+                            "displayName": "user_email",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "message",
+                            "displayName": "message",
+                            "required": true,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "response",
+                            "displayName": "response",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "created_at",
+                            "displayName": "created_at",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "dateTime",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                2288,
+                256
+            ],
+            "id": "b4dd3c97-e5e3-4539-ac6f-cbfea406de4f",
+            "name": "Insert rows in a table",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "schema": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "public"
+                },
+                "table": {
+                    "__rl": true,
+                    "value": "renovi_chat",
+                    "mode": "name"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "response": "={{ $json.output }}",
+                        "message": "={{ $('Switch1').item.json.query }}",
+                        "user_email": "contact@agenceaetheria.com",
+                        "session_id": "={{ $('Switch1').item.json.ts }}",
+                        "created_at": "={{ $now.setZone('Europe/Paris').toFormat('dd/MM/yyyy') }}"
+                    },
+                    "matchingColumns": [
+                        "id"
+                    ],
+                    "schema": [
+                        {
+                            "id": "id",
+                            "displayName": "id",
+                            "required": false,
+                            "defaultMatch": true,
+                            "display": true,
+                            "type": "number",
+                            "canBeUsedToMatch": true,
+                            "removed": true
+                        },
+                        {
+                            "id": "session_id",
+                            "displayName": "session_id",
+                            "required": true,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "user_email",
+                            "displayName": "user_email",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "message",
+                            "displayName": "message",
+                            "required": true,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "response",
+                            "displayName": "response",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "created_at",
+                            "displayName": "created_at",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "dateTime",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                3360,
+                -96
+            ],
+            "id": "f5b5f817-f52b-425c-a86c-448499d0feeb",
+            "name": "Insert rows in a table1",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "schema": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "public"
+                },
+                "table": {
+                    "__rl": true,
+                    "value": "renovi_chat",
+                    "mode": "name"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "response": "={{ $json.output }}",
+                        "message": "={{ $('Switch1').item.json.query }}",
+                        "user_email": "contact@agenceaetheria.com",
+                        "session_id": "={{ $('Switch1').item.json.ts }}",
+                        "created_at": "={{ $now.setZone('Europe/Paris').toFormat('dd/MM/yyyy') }}"
+                    },
+                    "matchingColumns": [
+                        "id"
+                    ],
+                    "schema": [
+                        {
+                            "id": "id",
+                            "displayName": "id",
+                            "required": false,
+                            "defaultMatch": true,
+                            "display": true,
+                            "type": "number",
+                            "canBeUsedToMatch": true,
+                            "removed": true
+                        },
+                        {
+                            "id": "session_id",
+                            "displayName": "session_id",
+                            "required": true,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "user_email",
+                            "displayName": "user_email",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "message",
+                            "displayName": "message",
+                            "required": true,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "response",
+                            "displayName": "response",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "created_at",
+                            "displayName": "created_at",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "dateTime",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                2096,
+                -544
+            ],
+            "id": "a495baa0-2ee8-4628-a846-1db09375c90f",
+            "name": "Insert rows in a table2",
+            "credentials": {
+                "postgres": {
+                    "id": "1G7YaXV61wRtPgBl",
+                    "name": "Postgres entreprise"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "When chat message received": {
+            "main": [
+                [
+                    {
+                        "node": "query2doc",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AI Agent": {
+            "main": [
+                [
+                    {
+                        "node": "Insert rows in a table",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Chat Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Simple Memory": {
+            "ai_memory": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_memory",
+                        "index": 0
+                    },
+                    {
+                        "node": "query2doc",
+                        "type": "ai_memory",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Chat Model1": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_languageModel",
+                        "index": 1
+                    }
+                ]
+            ]
+        },
+        "Postgres PGVector Store1": {
+            "main": [
+                [
+                    {
+                        "node": "Sort1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Embeddings OpenAI2": {
+            "ai_embedding": [
+                [
+                    {
+                        "node": "Postgres PGVector Store1",
+                        "type": "ai_embedding",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sort1": {
+            "main": [
+                [
+                    {
+                        "node": "Limit",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Limit": {
+            "main": [
+                [
+                    {
+                        "node": "Aggregate",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Aggregate": {
+            "main": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Fast Parser (Edit Fields)": {
+            "main": [
+                [
+                    {
+                        "node": "Switch1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch1": {
+            "main": [
+                [
+                    {
+                        "node": "agentFinance1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "agentResume2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "If",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Chat Model7": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "agentFinance1",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "MontantProjet1": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "agentFinance1",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "TresorerieGlobale1": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "agentFinance1",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "DetailMoisGlobal1": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "agentFinance1",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "DetailMoisProjet1": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "agentFinance1",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "agentFinance1": {
+            "main": [
+                [
+                    {
+                        "node": "Insert rows in a table2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "SommeDevis": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "agentFinance1",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "agentResume2": {
+            "main": [
+                [
+                    {
+                        "node": "Insert rows in a table1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "GetRecentTasks1": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "agentResume2",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "GetRecentEmails1": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "agentResume2",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "GetRecentCR1": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "agentResume2",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "GetProjectResume": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "agentResume2",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Chat Model8": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "agentResume2",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "MontantFacture2": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "agentFinance1",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "query2doc": {
+            "main": [
+                [
+                    {
+                        "node": "Fast Parser (Edit Fields)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Chat Model3": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "query2doc",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If": {
+            "main": [
+                [
+                    {
+                        "node": "Postgres PGVector Store",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Postgres PGVector Store1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Postgres PGVector Store": {
+            "main": [
+                [
+                    {
+                        "node": "Sort1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Embeddings OpenAI": {
+            "ai_embedding": [
+                [
+                    {
+                        "node": "Postgres PGVector Store",
+                        "type": "ai_embedding",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "8fc4c75a6532b1825d006e09544f9f4fdfcdfcc553378bd9d7ed66e8d3788f72"
+    }
+}

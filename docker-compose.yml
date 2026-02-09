@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  renovi-chat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: renovi-chat:latest
+    container_name: renovi-chat
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_HOST=my-rag-postgres-1
+      - DB_PORT=5432
+      - DB_USER=baptiste
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=n8n
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/chat/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - renovi-network
+    # Resource limits for production
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+networks:
+  renovi-network:
+    driver: bridge
