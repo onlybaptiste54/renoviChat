@@ -458,13 +458,22 @@
 
         <main class="chat-main">
             <header class="chat-header">
-                <button class="menu-toggle" id="menuToggle">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button class="menu-toggle" id="menuToggle">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M3 12h18M3 6h18M3 18h18" />
+                        </svg>
+                    </button>
+                    <h1 class="logo">Renovi</h1>
+                </div>
+                <button class="menu-toggle" id="helpBtn" title="Aide">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 12h18M3 6h18M3 18h18" />
+                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1.02c0 .94-.44 2.8-2.92 2.8V14" />
+                        <path d="M12 17h.01" />
                     </svg>
                 </button>
-                <h1 class="logo">Renovi</h1>
-                <div style="width:40px"></div>
             </header>
 
             <div class="chat-messages" id="chatMessages">
@@ -498,6 +507,48 @@
         </main>
     </div>
 
+    <!-- HELP MODAL -->
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" id="closeHelp">&times;</button>
+            <h3>📚 Guide d'utilisation Renovi</h3>
+
+            <div class="help-section">
+                <h4>💰 Finance & Budget</h4>
+                <p>Demandez des chiffres précis :</p>
+                <ul>
+                    <li>"Quel est le montant total des factures ?"</li>
+                    <li>"Somme des devis plomberie projet Labbe"</li>
+                    <li>"Reste à payer théorique sur le chantier X"</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h4>🏗️ Suivi de Chantier</h4>
+                <p>Obtenez une vue d'ensemble :</p>
+                <ul>
+                    <li>"Synthèse du projet [Nom]" (Mails + CR + Tâches)</li>
+                    <li>"Quelles sont les dernières tâches ?"</li>
+                    <li>"Résumé des derniers échanges mails"</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h4>🔍 Recherche Documentaire (RAG)</h4>
+                <p>Trouvez des informations techniques :</p>
+                <ul>
+                    <li>"Quelle est la référence du carrelage ?"</li>
+                    <li>"Retrouve le devis de l'électricien"</li>
+                    <li>"Qui est le lot peinture ?"</li>
+                </ul>
+            </div>
+
+            <div class="help-footer">
+                <p>💡 <strong>Astuce :</strong> Soyez précis sur le nom du projet pour de meilleurs résultats.</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         const WEBHOOK_URL = 'https://renovi.agenceaetheria.com/webhook/f2a19d60-c531-4a50-bb64-480284ef80d2/chat';
         let currentUserEmail = '';
@@ -519,6 +570,21 @@
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
         const conversationList = document.querySelector('.conversation-list');
+
+        // Help Modal Logic
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const closeHelp = document.getElementById('closeHelp');
+
+        if (helpBtn) {
+            helpBtn.addEventListener('click', () => helpModal.classList.add('open'));
+        }
+        if (closeHelp) {
+            closeHelp.addEventListener('click', () => helpModal.classList.remove('open'));
+        }
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) helpModal.classList.remove('open');
+        });
 
         // Generate a stable session ID format or use existing
         let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -651,6 +717,7 @@
             const contentDiv = responseDiv.querySelector('.message-content');
             let fullText = '';
             let isFirstChunk = true;
+            let buffer = ''; // Buffer for incomplete chunks
 
             try {
                 const response = await fetch(WEBHOOK_URL, {
@@ -675,18 +742,61 @@
                     if (done) break;
 
                     const chunk = decoder.decode(value, { stream: true });
+                    buffer += chunk;
 
-                    if (isFirstChunk) {
-                        contentDiv.innerHTML = ''; // Start fresh
-                        isFirstChunk = false;
+                    // Process buffer line by line
+                    const lines = buffer.split('\n');
+                    // Keep the last line in buffer if it's incomplete
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (!line.trim()) continue;
+
+                        let textToDisplay = '';
+
+                        // Try parsing N8N JSON format: {"type":"item","content":"..."}
+                        if (line.trim().startsWith('{')) {
+                            try {
+                                const json = JSON.parse(line);
+                                if (json.content) {
+                                    textToDisplay = json.content;
+                                } else if (json.data && json.data.content) {
+                                    textToDisplay = json.data.content;
+                                } else if (json.output) {
+                                    textToDisplay = json.output;
+                                }
+                            } catch (e) {
+                                // If parse error, maybe it's just raw text or incomplete
+                                // We ignore parse errors and treat as text only if it doesn't look like JSON
+                            }
+                        } else {
+                            // Fallback: raw text
+                            textToDisplay = line;
+                        }
+
+                        if (textToDisplay) {
+                            if (isFirstChunk) {
+                                contentDiv.innerHTML = ''; // Start fresh
+                                isFirstChunk = false;
+                            }
+                            fullText += textToDisplay;
+                            contentDiv.innerHTML = formatMessage(fullText);
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }
                     }
+                }
 
-                    // Simple handling: append chunk text
-                    // If N8N sends JSON chunks (rare with standard streaming), we'd parse.
-                    // For now assume raw text stream.
-                    fullText += chunk;
+                // Process remaining buffer if it looks like content
+                if (buffer.trim()) {
+                    /* Same parsing logic for safe measure */
+                    if (isFirstChunk) { contentDiv.innerHTML = ''; isFirstChunk = false; }
+                    try {
+                        const json = JSON.parse(buffer);
+                        if (json.content) fullText += json.content;
+                    } catch (e) {
+                        fullText += buffer;
+                    }
                     contentDiv.innerHTML = formatMessage(fullText);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
                 }
 
                 // Refresh sessions list after sending a message
@@ -729,6 +839,7 @@
         }
 
         function formatMessage(text) {
+            if (!text) return '';
             // Basic markdown-like formatting
             return text
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -739,3 +850,4 @@
 </body>
 
 </html>
+```
