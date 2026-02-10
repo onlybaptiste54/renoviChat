@@ -25,7 +25,14 @@ services:
       retries: 3
       start_period: 10s
     networks:
-      - renovi-network
+      - my-rag_internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.renovichat.rule=Host(`renovichat.agenceaetheria.com`)"
+      - "traefik.http.routers.renovichat.entrypoints=websecure"
+      - "traefik.http.routers.renovichat.tls=true"
+      - "traefik.http.routers.renovichat.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.renovichat.loadbalancer.server.port=3000"
     # Resource limits for production
     deploy:
       resources:
@@ -37,5 +44,5 @@ services:
           memory: 256M
 
 networks:
-  renovi-network:
-    driver: bridge
+  my-rag_internal:
+    external: true
