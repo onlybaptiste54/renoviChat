@@ -447,6 +447,14 @@
                     <div class="avatar" id="userAvatar">R</div>
                     <span id="userName">Renovi User</span>
                 </div>
+                <button class="logout-btn" id="helpSidebarBtn" title="Guide d'utilisation">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1.02c0 .94-.44 2.8-2.92 2.8V14" />
+                        <path d="M12 17h.01" />
+                    </svg>
+                    Guide d'utilisation
+                </button>
                 <button class="logout-btn" id="logoutBtn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
@@ -690,6 +698,16 @@
             localStorage.removeItem('renovi_user');
             sessionStorage.removeItem('renovi_user');
             window.location.href = '/login.html';
+        });
+
+        // Help - Header button
+        document.getElementById('helpBtn').addEventListener('click', () => {
+            window.open('/help.html', '_blank');
+        });
+
+        // Help - Sidebar button
+        document.getElementById('helpSidebarBtn').addEventListener('click', () => {
+            window.open('/help.html', '_blank');
         });
 
         // Mobile menu

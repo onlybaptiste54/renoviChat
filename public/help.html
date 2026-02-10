@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renovi - Guide d'utilisation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #212121;
+            --bg-secondary: #171717;
+            --bg-tertiary: #2f2f2f;
+            --bg-hover: #3a3a3a;
+            --text-primary: #ececec;
+            --text-secondary: #b4b4b4;
+            --text-muted: #8e8e8e;
+            --accent-color: #10a37f;
+            --accent-hover: #0d8a6b;
+            --accent-light: #2dd4bf;
+            --border-color: #3a3a3a;
+            --alert-red: #ef4444;
+            --alert-red-light: rgba(239, 68, 68, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border-bottom: 2px solid var(--alert-red);
+            padding: 32px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .alert-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--alert-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .intro-section {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+        }
+
+        .intro-section h2 {
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: var(--accent-light);
+        }
+
+        .intro-section p {
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .intro-section .highlight {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .sections {
+            display: grid;
+            gap: 32px;
+        }
+
+        .section {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background-color: var(--bg-tertiary);
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .section-content {
+            padding: 32px;
+        }
+
+        .subsection {
+            margin-bottom: 28px;
+        }
+
+        .subsection:last-child {
+            margin-bottom: 0;
+        }
+
+        .subsection h3 {
+            font-size: 16px;
+            color: var(--accent-light);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .subsection h3::before {
+            content: '→';
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .subsection p {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .example-box {
+            background-color: var(--bg-tertiary);
+            border-left: 3px solid var(--accent-color);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-top: 12px;
+            margin-bottom: 16px;
+        }
+
+        .example-box .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .example-box .question {
+            color: var(--text-primary);
+            font-weight: 500;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        .example-box .response-hint {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .multi-agent-visual {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .agent-boxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .agent-box {
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--accent-color);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .agent-box .icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .agent-box .name {
+            font-weight: 600;
+            color: var(--accent-light);
+            font-size: 0.9rem;
+        }
+
+        .tips {
+            background-color: var(--alert-red-light);
+            border: 1px solid var(--alert-red);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .tips h4 {
+            color: var(--alert-red);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tips h4::before {
+            content: 'ⓘ';
+            font-size: 20px;
+        }
+
+        .tips ul {
+            list-style: none;
+            color: var(--text-secondary);
+        }
+
+        .tips li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .tips li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--alert-red);
+            font-weight: bold;
+        }
+
+        .faq-item {
+            background-color: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .faq-question {
+            padding: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+            font-weight: 500;
+            color: var(--accent-light);
+        }
+
+        .faq-question:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .faq-question::after {
+            content: '▼';
+            font-size: 12px;
+            transition: transform 0.3s ease;
+            color: var(--accent-color);
+        }
+
+        .faq-item.open .faq-question::after {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 16px 16px 16px;
+            color: var(--text-secondary);
+            display: none;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .intro-section {
+                padding: 20px;
+            }
+
+            .section-content {
+                padding: 20px;
+            }
+
+            .agent-boxes {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="alert-icon">?</div>
+            <h1>Guide d'utilisation - Renovi</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Intro Section -->
+        <div class="intro-section">
+            <h2>Bienvenue dans Renovi Assistant !</h2>
+            <p>Renovi est conçu pour vous aider en répondant à vos questions sur vos <span class="highlight">projets, finances, résumés,</span> et bien plus. Posez vos questions de manière naturelle et obtenez des réponses détaillées adaptées à votre besoin.</p>
+            <p><span class="highlight">Plus votre question est détaillée, plus la réponse sera précise.</span> Utilisez différents agents spécialisés pour explorer tous les aspects de vos projets.</p>
+        </div>
+
+        <!-- Three Main Sections -->
+        <div class="sections">
+            <!-- Section 1: How to Ask Questions -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">1</div>
+                    <h2>Comment poser vos questions</h2>
+                </div>
+                <div class="section-content">
+                    <div class="subsection">
+                        <h3>Clarté et concision</h3>
+                        <p>Posez des questions claires et directives. Soyez spécifique sur ce que vous cherchez.</p>
+                        <div class="example-box">
+                            <div class="label">VAGUE</div>
+                            <div class="question">"Parle-moi du projet"</div>
+                            <div class="response-hint">→ Réponse générique et confuse</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">PRÉCIS</div>
+                            <div class="question">"Quel est le statut actuel du Projet X et quelles sont les tâches en attente ?"</div>
+                            <div class="response-hint">→ Réponse ciblée et utile</div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Utiliser plusieurs agents</h3>
+                        <p>Renovi dispose de <span class="highlight">plusieurs agents spécialisés</span>. Vous pouvez basculer entre eux pour obtenir des réponses d'experts sur différents domaines.</p>
+                        <div class="multi-agent-visual">
+                            <p>Agents disponibles :</p>
+                            <div class="agent-boxes">
+                                <div class="agent-box">
+                                    <div class=\"icon\">$</div>
+                                    <div class="name">Financier</div>
+                                </div>
+                                <div class="agent-box">
+                                    <div class="icon">≣</div>
+                                    <div class="name">Résumé</div>
+                                </div>
+                                <div class="agent-box">
+                                    <div class="icon">⚡</div>
+                                    <div class="name">Technique</div>
+                                </div>
+                                <div class="agent-box">
+                                    <div class="icon">⏱</div>
+                                    <div class="name">Planning</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Contexte et détails</h3>
+                        <p>Plus vous donnez de contexte, meilleure sera la réponse. Mentionnez le patient, le vendeur, les dates, les montants — tout ce qui est pertinent.</p>
+                        <div class="example-box">
+                            <div class="label">CONSEIL</div>
+                            <div class="question">"Donne-moi un résumé détaillé du Projet X avec objectif, statut, prochains jalons et deadline."</div>
+                            <div class="response-hint">→ Réponse exhaustive et structurée</div>
+                        </div>
+                    </div>
+
+                    <div class="tips">
+                        <h4>Conseils pratiques</h4>
+                        <ul>
+                            <li>Utilisez le bon agent pour chaque type de question</li>
+                            <li>Réutilisez les même noms de projets / clients à chaque fois</li>
+                            <li>Soyez spécifique plutôt que général</li>
+                            <li>N'hésitez pas à poser des questions de suivi</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Question Types & Examples -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">2</div>
+                    <h2>Types de questions avec exemples</h2>
+                </div>
+                <div class="section-content">
+                    <div class="subsection">
+                        <h3>Questions de résumé / statut</h3>
+                        <p>Obtenez un aperçu global d'un projet ou d'une situation.</p>
+                        <div class="example-box">
+                            <div class="label">Exemple 1</div>
+                            <div class="question">"Où en sont les projets cette semaine ?"</div>
+                            <div class="response-hint">Résumé global, statuts, prochaines étapes</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 2</div>
+                            <div class="question">"Donne-moi un résumé du Projet X en 5 points clés."</div>
+                            <div class="response-hint">Objectif · Statut · Blocages · Prochains jalons · Deadline</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 3</div>
+                            <div class="question">"Y a-t-il des blocages ouverts sur l'ensemble des projets ?"</div>
+                            <div class="response-hint">Liste des problèmes, impacts, responsables</div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Questions financières</h3>
+                        <p>Consultez les informations de facturation, devis, et conditions de paiement.</p>
+                        <div class="example-box">
+                            <div class="label">Exemple 1</div>
+                            <div class="question">"Quel est le total TTC du devis Projet X ?"</div>
+                            <div class="response-hint">Montant global, détail par service/option</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 2</div>
+                            <div class="question">"Quelles options du devis Projet X ont été acceptées ?"</div>
+                            <div class="response-hint">Listes des options validées + impacts</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 3</div>
+                            <div class="question">"Quels sont les paiements attendus pour le Projet X ?"</div>
+                            <div class="response-hint">Calendrier de facturation, montants, dates</div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Questions sur les décisions & documents</h3>
+                        <p>Retrouvez les décisions passées, documents clés, et historique.</p>
+                        <div class="example-box">
+                            <div class="label">Exemple 1</div>
+                            <div class="question">"Donne les 3 dernières décisions du client sur le Projet X."</div>
+                            <div class="response-hint">Décisions récentes, dates, impacts</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 2</div>
+                            <div class="question">"Donne les 2 derniers comptes rendus du Projet X."</div>
+                            <div class="response-hint">Points clés, actions, participants</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 3</div>
+                            <div class="question">"Donne les mails les plus récents liés au Projet X."</div>
+                            <div class="response-hint">Échanges clés, points d'action</div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Questions sur le planning</h3>
+                        <p>Explorez les jalons, deadlines, et calendriers d'exécution.</p>
+                        <div class="example-box">
+                            <div class="label">Exemple 1</div>
+                            <div class="question">"Quelle est la prochaine réunion du Projet X ?"</div>
+                            <div class="response-hint">Date, heure, participants, ordre du jour</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 2</div>
+                            <div class="question">"Quels sont les livrables attendus cette semaine ?"</div>
+                            <div class="response-hint">Livrables · Propriétaires · Critères d'acceptation</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 3</div>
+                            <div class="question">"Quelle est la deadline globale du Projet X ?"</div>
+                            <div class="response-hint">Date finale · Jalons intermédiaires</div>
+                        </div>
+                    </div>
+
+                    <div class="tips">
+                        <h4>Variez vos questions</h4>
+                        <ul>
+                            <li>Combinez plusieurs critères dans une seule question</li>
+                            <li>Posez des questions de suivsi pour approfondir une réponse</li>
+                            <li>Adaptez votre niveau de détail selon votre besoin</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Details & FAQ -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">3</div>
+                    <h2>Détails & Questions fréquentes</h2>
+                </div>
+                <div class="section-content">
+                    <div class="subsection">
+                        <h3>Questions urgentes et priorités</h3>
+                        <div class="example-box">
+                            <div class="label">Question</div>
+                            <div class="question">"Quelles sont les tâches urgentes, tous projets confondus ?"</div>
+                            <div class="response-hint">Tâches critiques · Impacts · Propriétaires · Actions suggérées</div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Questions sur les livrables et tâches clients</h3>
+                        <div class="example-box">
+                            <div class="label">Question</div>
+                            <div class="question">"Quelles tâches du client sont en attente ?"</div>
+                            <div class="response-hint">Tâches bloquantes · Dates d'attente · Impact sur planning</div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>FAQ - Questions fréquemment posées</h3>
+                        <div class="faq-item">
+                            <div class="faq-question">Comment accéder aux agents spécialisés ?</div>
+                            <div class="faq-answer">
+                                Vous pouvez sélectionner le bon agent dans la barre latérale ou le menu principal. Chaque agent a une spécialité : Résumé, Financier, Technique, Planning. Vos questions seront acheminées vers l'expert compétent.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">Que faire si la réponse n'est pas assez détaillée ?</div>
+                            <div class="faq-answer">
+                                Posez une question de suivi plus précise. Par exemple, si vous demandez "résumé du Projet X" et que vous voulez plus de détails financiers, demandez ensuite "Détaille les coûts et options du Projet X".
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">Puis-je revenir à une question précédente ?</div>
+                            <div class="faq-answer">
+                                Oui, l'historique de ces conversations est conservé. Vous pouvez naviguer dans votre session pour retrouver des questions et réponses antérieures.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">Les données sont-elles confidentielles ?</div>
+                            <div class="faq-answer">
+                                Oui. Les données sont traitées de manière sécurisée et respectent les conditions de confidentialité. Consultez nos conditions de service pour plus de détails.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">Quel format de réponse puis-je attendre ?</div>
+                            <div class="faq-answer">
+                                Les réponses sont structurées, claires, et généralement formatées avec puces, titres, ou tableaux selon le sujet. Les données financières sont affichées avec devises et précision décimale.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">Comment je dois nommer mes projets pour des recherches cohérentes ?</div>
+                            <div class="faq-answer">
+                                Utilisez toujours les mêmes noms de projets / clients. Par exemple, n'altern pas entre "Projet X", "ProjetX", "PX". Cela garantit que les réponses sont cohérentes et exactes.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tips">
+                        <h4>Besoin d'aide supplémentaire ?</h4>
+                        <ul>
+                            <li>Consultez ce guide à chaque fois que vous accédez à Renovi</li>
+                            <li>N'hésitez pas à poser des questions complexes ou multi-critères</li>
+                            <li>Contactez l'équipe support si vous rencontrez un problème</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Renovi v1.0 • Guide d'utilisation © 2026 Agence Aetheria</p>
+        <p>Pour signaler un problème ou suggérer une amélioration, contactez votre administrateur</p>
+    </div>
+
+    <script>
+        // FAQ Toggle functionality
+        document.querySelectorAll('.faq-item').forEach(item => {
+            const question = item.querySelector('.faq-question');
+            question.addEventListener('click', () => {
+                item.classList.toggle('open');
+            });
+        });
+
+        // Smooth scroll for anchor links (if needed later)
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
