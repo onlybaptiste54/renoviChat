@@ -380,8 +380,8 @@
         <!-- Intro Section -->
         <div class="intro-section">
             <h2>Bienvenue dans Renovi Assistant !</h2>
-            <p>Renovi est conçu pour vous aider en répondant à vos questions sur vos <span class="highlight">projets, finances, résumés,</span> et bien plus. Posez vos questions de manière naturelle et obtenez des réponses détaillées adaptées à votre besoin.</p>
-            <p><span class="highlight">Plus votre question est détaillée, plus la réponse sera précise.</span> Utilisez différents agents spécialisés pour explorer tous les aspects de vos projets.</p>
+            <p>Renovi vous aide à consulter vos projets et toutes les informations associées en posant des questions simples. Vous avez accès à <span class="highlight">3 types de recherches</span>: global (résumé, tâches, CR, mails), financier (devis, factures), et recherche sémantique libre pour plus de détails.</p>
+            <p><span class="highlight">Plus votre question est précise, meilleure sera la réponse.</span> Nommez toujours vos projets et clients de la même façon pour garantir la cohérence.</p>
         </div>
 
         <!-- Three Main Sections -->
@@ -390,165 +390,150 @@
             <div class="section">
                 <div class="section-header">
                     <div class="section-number">1</div>
-                    <h2>Comment poser vos questions</h2>
+                    <h2>Les 3 types de recherches disponibles</h2>
                 </div>
                 <div class="section-content">
                     <div class="subsection">
-                        <h3>Clarté et concision</h3>
-                        <p>Posez des questions claires et directives. Soyez spécifique sur ce que vous cherchez.</p>
+                        <h3>Quels types de requêtes pouvez-vous faire ?</h3>
+                        <p>Renovi supporte trois catégories de recherches, chacune liée à des requêtes SQL pré-construites pour garantir la précision et la rapidité.</p>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>1. Résumé Global - Projet, tâches, CR, mails</h3>
+                        <p>Consultez en un coup d'oeil tout ce que vous devez savoir sur un projet: synthèse, liste des tâches, comptes-rendus récents et derniers échanges mails.</p>
                         <div class="example-box">
-                            <div class="label">VAGUE</div>
-                            <div class="question">"Parle-moi du projet"</div>
-                            <div class="response-hint">→ Réponse générique et confuse</div>
+                            <div class="label">Exemple 1</div>
+                            <div class="question">"Quel est le résumé du Projet X ?"</div>
+                            <div class="response-hint">→ Statut, objectif, prochains jalons, deadline</div>
                         </div>
                         <div class="example-box">
-                            <div class="label">PRÉCIS</div>
-                            <div class="question">"Quel est le statut actuel du Projet X et quelles sont les tâches en attente ?"</div>
-                            <div class="response-hint">→ Réponse ciblée et utile</div>
+                            <div class="label">Exemple 2</div>
+                            <div class="question">"Quelles sont les tâches du Projet X ?"</div>
+                            <div class="response-hint">→ Liste des tâches, priorités, responsables</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 3</div>
+                            <div class="question">"Donne-moi les comptes-rendus du Projet X"</div>
+                            <div class="response-hint">→ Derniers CR, points clés, décisions</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 4</div>
+                            <div class="question">"Quels sont les derniers mails du Projet X ?"</div>
+                            <div class="response-hint">→ Échanges récents, points d'action, décisions du client</div>
                         </div>
                     </div>
 
                     <div class="subsection">
-                        <h3>Utiliser plusieurs agents</h3>
-                        <p>Renovi dispose de <span class="highlight">plusieurs agents spécialisés</span>. Vous pouvez basculer entre eux pour obtenir des réponses d'experts sur différents domaines.</p>
-                        <div class="multi-agent-visual">
-                            <p>Agents disponibles :</p>
-                            <div class="agent-boxes">
-                                <div class="agent-box">
-                                    <div class=\"icon\">$</div>
-                                    <div class="name">Financier</div>
-                                </div>
-                                <div class="agent-box">
-                                    <div class="icon">≣</div>
-                                    <div class="name">Résumé</div>
-                                </div>
-                                <div class="agent-box">
-                                    <div class="icon">⚡</div>
-                                    <div class="name">Technique</div>
-                                </div>
-                                <div class="agent-box">
-                                    <div class="icon">⏱</div>
-                                    <div class="name">Planning</div>
-                                </div>
-                            </div>
+                        <h3>2. Financier - Devis, factures, synthèse</h3>
+                        <p>Accédez à toutes les informations de facturation: montants des devis, options acceptées, synthèse financière et historique des factures.</p>
+                        <div class="example-box">
+                            <div class="label">Exemple 1</div>
+                            <div class="question">"Quel est le total TTC du devis Projet X ?"</div>
+                            <div class="response-hint">→ Montant total, détail HT/TTC, TVA</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 2</div>
+                            <div class="question">"Quelles options du Projet X ont été acceptées ?"</div>
+                            <div class="response-hint">→ Options validées, montants associés, impacts</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 3</div>
+                            <div class="question">"Donne-moi la synthèse financière du Projet X"</div>
+                            <div class="response-hint">→ Budget, dépenses, factures, statut de paiement</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 4</div>
+                            <div class="question">"Quelles sont les factures du Projet X ?"</div>
+                            <div class="response-hint">→ Numéros, dates, montants, statuts de paiement</div>
                         </div>
                     </div>
 
                     <div class="subsection">
-                        <h3>Contexte et détails</h3>
-                        <p>Plus vous donnez de contexte, meilleure sera la réponse. Mentionnez le patient, le vendeur, les dates, les montants — tout ce qui est pertinent.</p>
+                        <h3>3. Recherche RAG Sémantique - Exploration libre et détaillée</h3>
+                        <p>Posez n'importe quelle question concernant vos projets ou clients. La recherche sémantique trouve et synthétise les informations pertinentes dans votre base de données.</p>
                         <div class="example-box">
-                            <div class="label">CONSEIL</div>
-                            <div class="question">"Donne-moi un résumé détaillé du Projet X avec objectif, statut, prochains jalons et deadline."</div>
-                            <div class="response-hint">→ Réponse exhaustive et structurée</div>
+                            <div class="label">Exemple 1</div>
+                            <div class="question">"Qui doit installer la colonne de douche ?"</div>
+                            <div class="response-hint">→ Recherche dans les tâches, CR, mails pour trouver le prestataire responsable</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 2</div>
+                            <div class="question">"Quel est le statut du carrelage dans le Projet X ?"</div>
+                            <div class="response-hint">→ Recherche parmi les tâches, CR et photos les infos sur ce sujet</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 3</div>
+                            <div class="question">"Quels problèmes ont été identifiés lors des inspections ?"</div>
+                            <div class="response-hint">→ Recherche sémantique sur tous les CR et rapports pour les problèmes signalés</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">Exemple 4</div>
+                            <div class="question">"Donne-moi plus de détails sur la peinture du séjour"</div>
+                            <div class="response-hint">→ Recherche libre pour trouver tout ce qui concerne ce sujet spécifique</div>
                         </div>
                     </div>
 
                     <div class="tips">
-                        <h4>Conseils pratiques</h4>
+                        <h4>Bonnes pratiques</h4>
                         <ul>
-                            <li>Utilisez le bon agent pour chaque type de question</li>
-                            <li>Réutilisez les même noms de projets / clients à chaque fois</li>
-                            <li>Soyez spécifique plutôt que général</li>
-                            <li>N'hésitez pas à poser des questions de suivi</li>
+                            <li>Utilisez toujours les mêmes noms de projet et client pour cohérence</li>
+                            <li>Soyez spécifique: "Projet X" plutôt que "le projet"</li>
+                            <li>Utilisez la recherche RAG pour des questions détaillées ou précises</li>
+                            <li>Posez des questions de suivi pour affiner vos résultats</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
-            <!-- Section 2: Question Types & Examples -->
+            <!-- Section 2: How to Ask Questions Properly -->
             <div class="section">
                 <div class="section-header">
                     <div class="section-number">2</div>
-                    <h2>Types de questions avec exemples</h2>
+                    <h2>Comment poser vos questions efficacement</h2>
                 </div>
                 <div class="section-content">
                     <div class="subsection">
-                        <h3>Questions de résumé / statut</h3>
-                        <p>Obtenez un aperçu global d'un projet ou d'une situation.</p>
+                        <h3>Clarté et précision</h3>
+                        <p>Posez des questions directes en nommant clairement le projet et le sujet que vous recherchez.</p>
                         <div class="example-box">
-                            <div class="label">Exemple 1</div>
-                            <div class="question">"Où en sont les projets cette semaine ?"</div>
-                            <div class="response-hint">Résumé global, statuts, prochaines étapes</div>
+                            <div class="label">VAGUE</div>
+                            <div class="question">"Parle-moi du projet"</div>
+                            <div class="response-hint">→ Réponse générique et peu utile</div>
                         </div>
                         <div class="example-box">
-                            <div class="label">Exemple 2</div>
-                            <div class="question">"Donne-moi un résumé du Projet X en 5 points clés."</div>
-                            <div class="response-hint">Objectif · Statut · Blocages · Prochains jalons · Deadline</div>
-                        </div>
-                        <div class="example-box">
-                            <div class="label">Exemple 3</div>
-                            <div class="question">"Y a-t-il des blocages ouverts sur l'ensemble des projets ?"</div>
-                            <div class="response-hint">Liste des problèmes, impacts, responsables</div>
+                            <div class="label">PRÉCIS</div>
+                            <div class="question">"Quel est le statut actuel du Projet X et quelles sont les tâches en attente ?"</div>
+                            <div class="response-hint">→ Réponse ciblée et structurée</div>
                         </div>
                     </div>
 
                     <div class="subsection">
-                        <h3>Questions financières</h3>
-                        <p>Consultez les informations de facturation, devis, et conditions de paiement.</p>
+                        <h3>Contexte et détails</h3>
+                        <p>Plus vous fournissez de contexte, plus la réponse sera précise. Mentionnez le client, le projet, les dates, les montants — tout ce qui est pertinent.</p>
                         <div class="example-box">
-                            <div class="label">Exemple 1</div>
-                            <div class="question">"Quel est le total TTC du devis Projet X ?"</div>
-                            <div class="response-hint">Montant global, détail par service/option</div>
-                        </div>
-                        <div class="example-box">
-                            <div class="label">Exemple 2</div>
-                            <div class="question">"Quelles options du devis Projet X ont été acceptées ?"</div>
-                            <div class="response-hint">Listes des options validées + impacts</div>
-                        </div>
-                        <div class="example-box">
-                            <div class="label">Exemple 3</div>
-                            <div class="question">"Quels sont les paiements attendus pour le Projet X ?"</div>
-                            <div class="response-hint">Calendrier de facturation, montants, dates</div>
+                            <div class="label">BON</div>
+                            <div class="question">"Donne-moi un résumé du Projet X avec les tâches urgentes et les décisions du client des 2 dernières semaines."</div>
+                            <div class="response-hint">→ Réponse exhaustive et adaptée à votre besoin</div>
                         </div>
                     </div>
 
                     <div class="subsection">
-                        <h3>Questions sur les décisions & documents</h3>
-                        <p>Retrouvez les décisions passées, documents clés, et historique.</p>
+                        <h3>Actions recommandées</h3>
+                        <p>Structurez vos questions pour obtenir des réponses actionnables et utiles au quotidien.</p>
                         <div class="example-box">
-                            <div class="label">Exemple 1</div>
-                            <div class="question">"Donne les 3 dernières décisions du client sur le Projet X."</div>
-                            <div class="response-hint">Décisions récentes, dates, impacts</div>
-                        </div>
-                        <div class="example-box">
-                            <div class="label">Exemple 2</div>
-                            <div class="question">"Donne les 2 derniers comptes rendus du Projet X."</div>
-                            <div class="response-hint">Points clés, actions, participants</div>
-                        </div>
-                        <div class="example-box">
-                            <div class="label">Exemple 3</div>
-                            <div class="question">"Donne les mails les plus récents liés au Projet X."</div>
-                            <div class="response-hint">Échanges clés, points d'action</div>
-                        </div>
-                    </div>
-
-                    <div class="subsection">
-                        <h3>Questions sur le planning</h3>
-                        <p>Explorez les jalons, deadlines, et calendriers d'exécution.</p>
-                        <div class="example-box">
-                            <div class="label">Exemple 1</div>
-                            <div class="question">"Quelle est la prochaine réunion du Projet X ?"</div>
-                            <div class="response-hint">Date, heure, participants, ordre du jour</div>
-                        </div>
-                        <div class="example-box">
-                            <div class="label">Exemple 2</div>
-                            <div class="question">"Quels sont les livrables attendus cette semaine ?"</div>
-                            <div class="response-hint">Livrables · Propriétaires · Critères d'acceptation</div>
-                        </div>
-                        <div class="example-box">
-                            <div class="label">Exemple 3</div>
-                            <div class="question">"Quelle est la deadline globale du Projet X ?"</div>
-                            <div class="response-hint">Date finale · Jalons intermédiaires</div>
+                            <div class="label">ACTION</div>
+                            <div class="question">"Quels sont les blocages actuels du Projet X et qui en est responsable ?"</div>
+                            <div class="response-hint">→ Réponse avec responsables et étapes suivantes claires</div>
                         </div>
                     </div>
 
                     <div class="tips">
-                        <h4>Variez vos questions</h4>
+                        <h4>Conseils pour des questions efficaces</h4>
                         <ul>
-                            <li>Combinez plusieurs critères dans une seule question</li>
-                            <li>Posez des questions de suivsi pour approfondir une réponse</li>
-                            <li>Adaptez votre niveau de détail selon votre besoin</li>
+                            <li>Nommez le projet ou client explicitement</li>
+                            <li>Soyez spécifique plutôt que généraliste</li>
+                            <li>Incluez les contextes temporels si pertinent (cette semaine, les 2 dernières semaines, etc.)</li>
+                            <li>Posez des questions de suivi pour affiner ou approfondir une réponse</li>
                         </ul>
                     </div>
                 </div>
@@ -562,64 +547,46 @@
                 </div>
                 <div class="section-content">
                     <div class="subsection">
-                        <h3>Questions urgentes et priorités</h3>
-                        <div class="example-box">
-                            <div class="label">Question</div>
-                            <div class="question">"Quelles sont les tâches urgentes, tous projets confondus ?"</div>
-                            <div class="response-hint">Tâches critiques · Impacts · Propriétaires · Actions suggérées</div>
-                        </div>
-                    </div>
-
-                    <div class="subsection">
-                        <h3>Questions sur les livrables et tâches clients</h3>
-                        <div class="example-box">
-                            <div class="label">Question</div>
-                            <div class="question">"Quelles tâches du client sont en attente ?"</div>
-                            <div class="response-hint">Tâches bloquantes · Dates d'attente · Impact sur planning</div>
-                        </div>
-                    </div>
-
-                    <div class="subsection">
                         <h3>FAQ - Questions fréquemment posées</h3>
                         <div class="faq-item">
-                            <div class="faq-question">Comment accéder aux agents spécialisés ?</div>
+                            <div class="faq-question">Quelle est la différence entre les 3 types de recherche ?</div>
                             <div class="faq-answer">
-                                Vous pouvez sélectionner le bon agent dans la barre latérale ou le menu principal. Chaque agent a une spécialité : Résumé, Financier, Technique, Planning. Vos questions seront acheminées vers l'expert compétent.
+                                <strong>Résumé Global</strong> permet d'obtenir une vue d'ensemble d'un projet (statut, tâches, CR, mails). <strong>Financier</strong> se concentre sur les aspects de facturation (devis, factures, options). <strong>Recherche RAG</strong> est une recherche libre et sémantique qui trouve n'importe quelle information dans votre base de données.
                             </div>
                         </div>
 
                         <div class="faq-item">
-                            <div class="faq-question">Que faire si la réponse n'est pas assez détaillée ?</div>
+                            <div class="faq-question">Puis-je poser des questions qui ne concernent pas un projet spécifique ?</div>
                             <div class="faq-answer">
-                                Posez une question de suivi plus précise. Par exemple, si vous demandez "résumé du Projet X" et que vous voulez plus de détails financiers, demandez ensuite "Détaille les coûts et options du Projet X".
+                                Oui. La recherche RAG sémantique permet de poser des questions sans lier à un projet. Par exemple: "Qui doit installer la colonne de douche ?" cherchera dans tous vos projets pour trouver la réponse.
                             </div>
                         </div>
 
                         <div class="faq-item">
-                            <div class="faq-question">Puis-je revenir à une question précédente ?</div>
+                            <div class="faq-question">Comment s'assurer que les réponses sont correctes ?</div>
                             <div class="faq-answer">
-                                Oui, l'historique de ces conversations est conservé. Vous pouvez naviguer dans votre session pour retrouver des questions et réponses antérieures.
+                                Utilisez toujours le même nom pour un projet ou un client. Par exemple, si vous appelez votre client "Projet X" une première fois, continuez à utiliser ce même nom dans vos questions suivantes. Cela garantit la cohérence des résultats.
                             </div>
                         </div>
 
                         <div class="faq-item">
-                            <div class="faq-question">Les données sont-elles confidentielles ?</div>
+                            <div class="faq-question">Puis-je combiner plusieurs types de questions en une ?</div>
                             <div class="faq-answer">
-                                Oui. Les données sont traitées de manière sécurisée et respectent les conditions de confidentialité. Consultez nos conditions de service pour plus de détails.
+                                Oui. Par exemple: "Donne-moi un résumé du Projet X avec le total du devis et les tâches en attente" combine résumé et financier. Soyez juste clair sur ce que vous demandez.
                             </div>
                         </div>
 
                         <div class="faq-item">
-                            <div class="faq-question">Quel format de réponse puis-je attendre ?</div>
+                            <div class="faq-question">Que faire si je ne suis pas satisfait d'une réponse ?</div>
                             <div class="faq-answer">
-                                Les réponses sont structurées, claires, et généralement formatées avec puces, titres, ou tableaux selon le sujet. Les données financières sont affichées avec devises et précision décimale.
+                                Posez une question de suivi plus précise. Par exemple, si la réponse est trop générale, précisez: "Donne-moi plus de détails sur [sujet spécifique]" ou changez votre approche en utilisant la recherche RAG pour explorer sous un angle différent.
                             </div>
                         </div>
 
                         <div class="faq-item">
-                            <div class="faq-question">Comment je dois nommer mes projets pour des recherches cohérentes ?</div>
+                            <div class="faq-question">Quel format auront les réponses ?</div>
                             <div class="faq-answer">
-                                Utilisez toujours les mêmes noms de projets / clients. Par exemple, n'altern pas entre "Projet X", "ProjetX", "PX". Cela garantit que les réponses sont cohérentes et exactes.
+                                Les réponses sont structurées et lisibles, généralement avec puces, titres, et tableaux selon le sujet. Les informations financières incluent les montants avec devises. Les données de projet sont présentées chronologiquement ou par priorité.
                             </div>
                         </div>
                     </div>
@@ -627,9 +594,10 @@
                     <div class="tips">
                         <h4>Besoin d'aide supplémentaire ?</h4>
                         <ul>
-                            <li>Consultez ce guide à chaque fois que vous accédez à Renovi</li>
-                            <li>N'hésitez pas à poser des questions complexes ou multi-critères</li>
-                            <li>Contactez l'équipe support si vous rencontrez un problème</li>
+                            <li>Parcourez les exemples de questions dans chaque section</li>
+                            <li>Testez des questions simples en premier, puis complexifiez</li>
+                            <li>Utilisez la recherche RAG pour explorer et découvrir des informations</li>
+                            <li>Contactez votre administrateur si vous rencontrez un problème</li>
                         </ul>
                     </div>
                 </div>
