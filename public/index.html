@@ -607,7 +607,13 @@
                         btn.style.border = 'none';
                         btn.style.justifyContent = 'flex-start';
                         btn.style.marginBottom = '2px';
-                        btn.innerText = (session.first_message || 'Nouvelle conversation').substring(0, 30) + '...';
+
+                        // Clean the preview text
+                        let preview = cleanContent(session.first_message || 'Nouvelle conversation');
+                        // Remove markdown symbols for better sidebar look
+                        preview = preview.replace(/[*#`_]/g, '');
+
+                        btn.innerText = preview.substring(0, 30) + '...';
                         btn.onclick = () => loadHistory(session.session_id);
                         conversationList.appendChild(btn);
                     });
@@ -627,8 +633,9 @@
                 if (data.messages && data.messages.length > 0) {
                     welcomeScreen.style.display = 'none';
                     data.messages.forEach(msg => {
-                        addMessage(msg.message, 'user');
-                        if (msg.response) addMessage(msg.response, 'assistant');
+                        // Clean content before displaying
+                        addMessage(cleanContent(msg.message), 'user');
+                        if (msg.response) addMessage(cleanContent(msg.response), 'assistant');
                     });
                     // Scroll to bottom
                     setTimeout(() => chatMessages.scrollTop = chatMessages.scrollHeight, 100);
@@ -702,22 +709,7 @@
             messageInput.value = '';
             messageInput.style.height = 'auto';
 
-            // Placeholder for the assistant's response
-            const responseDiv = document.createElement('div');
-            responseDiv.className = 'message assistant';
-            responseDiv.innerHTML = `
-                <div class="message-avatar">R</div>
-                <div class="message-content">
-                    <div class="typing-indicator"><span></span><span></span><span></span></div>
-                </div>
-            `;
-            chatMessages.appendChild(responseDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            const contentDiv = responseDiv.querySelector('.message-content');
-            let fullText = '';
-            let isFirstChunk = true;
-            let buffer = ''; // Buffer for incomplete chunks
+            const typingDiv = addTypingIndicator();
 
             try {
                 const response = await fetch(WEBHOOK_URL, {
@@ -734,83 +726,56 @@
 
                 if (!response.ok) throw new Error('Network response was not ok');
 
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
+                const data = await response.json();
+                typingDiv.remove();
+                addMessage(data.output || data.text || 'Réponse reçue.', 'assistant');
 
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    const chunk = decoder.decode(value, { stream: true });
-                    buffer += chunk;
-
-                    // Process buffer line by line
-                    const lines = buffer.split('\n');
-                    // Keep the last line in buffer if it's incomplete
-                    buffer = lines.pop();
-
-                    for (const line of lines) {
-                        if (!line.trim()) continue;
-
-                        let textToDisplay = '';
-
-                        // Try parsing N8N JSON format: {"type":"item","content":"..."}
-                        if (line.trim().startsWith('{')) {
-                            try {
-                                const json = JSON.parse(line);
-                                if (json.content) {
-                                    textToDisplay = json.content;
-                                } else if (json.data && json.data.content) {
-                                    textToDisplay = json.data.content;
-                                } else if (json.output) {
-                                    textToDisplay = json.output;
-                                }
-                            } catch (e) {
-                                // If parse error, maybe it's just raw text or incomplete
-                                // We ignore parse errors and treat as text only if it doesn't look like JSON
-                            }
-                        } else {
-                            // Fallback: raw text
-                            textToDisplay = line;
-                        }
-
-                        if (textToDisplay) {
-                            if (isFirstChunk) {
-                                contentDiv.innerHTML = ''; // Start fresh
-                                isFirstChunk = false;
-                            }
-                            fullText += textToDisplay;
-                            contentDiv.innerHTML = formatMessage(fullText);
-                            chatMessages.scrollTop = chatMessages.scrollHeight;
-                        }
-                    }
-                }
-
-                // Process remaining buffer if it looks like content
-                if (buffer.trim()) {
-                    /* Same parsing logic for safe measure */
-                    if (isFirstChunk) { contentDiv.innerHTML = ''; isFirstChunk = false; }
-                    try {
-                        const json = JSON.parse(buffer);
-                        if (json.content) fullText += json.content;
-                    } catch (e) {
-                        fullText += buffer;
-                    }
-                    contentDiv.innerHTML = formatMessage(fullText);
-                }
-
-                // Refresh sessions list after sending a message
                 loadSessions();
 
             } catch (error) {
                 console.error(error);
-                if (isFirstChunk) {
-                    contentDiv.innerHTML = '❌ Erreur de connexion. Réessayez.';
-                }
+                typingDiv.remove();
+                addMessage('❌ Erreur de connexion. Réessayez.', 'assistant');
             } finally {
                 isProcessing = false;
                 sendBtn.disabled = messageInput.value.trim() === '';
             }
+        }
+
+        // Helper to parse a single line from stream
+        function parseLine(line) {
+            if (line.trim().startsWith('{')) {
+                try {
+                    const json = JSON.parse(line);
+                    if (json.content) return json.content;
+                    if (json.data && json.data.content) return json.data.content;
+                    if (json.output) return json.output;
+                } catch (e) {
+                    return null;
+                }
+            }
+            return line;
+        }
+
+        // Clean content that might be full of JSON artifacts (for history)
+        function cleanContent(text) {
+            if (!text) return '';
+
+            // If it looks like a pile of JSON lines (the "bad" history)
+            if (text.includes('{"type":"item"') || text.includes('{"output":')) {
+                let clean = '';
+                const lines = text.split('\n');
+                lines.forEach(line => {
+                    const parsed = parseLine(line);
+                    if (parsed !== null) clean += parsed;
+                    else if (!line.trim().startsWith('{')) clean += line; // Keep normal text
+                });
+                return clean || text; // Fallback to original if aggressive cleaning kills everything
+            }
+
+            // Simple check for single JSON object
+            const parsed = parseLine(text);
+            return parsed !== null ? parsed : text;
         }
 
         function addMessage(content, type) {
