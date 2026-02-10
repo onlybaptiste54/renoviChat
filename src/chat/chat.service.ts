@@ -9,9 +9,9 @@ export class ChatService implements OnModuleInit {
         this.pool = new Pool({
             host: process.env.DB_HOST || 'localhost',
             port: parseInt(process.env.DB_PORT || '5432'),
-            user: process.env.DB_USER || 'baptiste',
-            password: process.env.DB_PASSWORD || '',
-            database: process.env.DB_NAME || 'n8n',
+            user: process.env.DB_USER || process.env.POSTGRES_USER || 'baptiste',
+            password: String(process.env.DB_PASSWORD ?? process.env.POSTGRES_PASSWORD ?? ''),
+            database: process.env.DB_NAME || process.env.POSTGRES_DB || 'n8n',
         });
     }
 

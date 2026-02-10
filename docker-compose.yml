@@ -10,14 +10,16 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    env_file:
+      - ../../my-rag/.env
     environment:
       - NODE_ENV=production
       - PORT=3000
       - DB_HOST=my-rag-postgres-1
       - DB_PORT=5432
-      - DB_USER=baptiste
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=n8n
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_DB}
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/chat/health"]
       interval: 30s
@@ -26,10 +28,11 @@ services:
       start_period: 10s
     networks:
       - my-rag_internal
+      - web
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.renovichat.rule=Host(`renovichat.agenceaetheria.com`)"
-      - "traefik.http.routers.renovichat.entrypoints=websecure"
+      - "traefik.http.routers.renovichat.entrypoints=web,websecure"
       - "traefik.http.routers.renovichat.tls=true"
       - "traefik.http.routers.renovichat.tls.certresolver=mytlschallenge"
       - "traefik.http.services.renovichat.loadbalancer.server.port=3000"
@@ -45,4 +48,6 @@ services:
 
 networks:
   my-rag_internal:
+    external: true
+  web:
     external: true
